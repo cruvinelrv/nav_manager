@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 
-class NavRouteInformationParser extends RouteInformationParser<String> {
+class NavRouteInformationParser
+    extends RouteInformationParser<RouteInformation> {
   @override
-  Future<String> parseRouteInformation(
+  Future<RouteInformation> parseRouteInformation(
       RouteInformation routeInformation) async {
     final uri = routeInformation.uri;
 
-    return uri.path.isNotEmpty ? uri.path : '/';
+    return RouteInformation(uri: uri);
   }
 
   @override
-  RouteInformation restoreRouteInformation(String configuration) {
-    return RouteInformation(uri: Uri.parse(configuration));
+  RouteInformation restoreRouteInformation(RouteInformation configuration) {
+    return configuration;
   }
 }
