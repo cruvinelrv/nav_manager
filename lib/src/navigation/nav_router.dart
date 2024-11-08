@@ -65,7 +65,13 @@ class NavRouter extends RouterDelegate<RouteInformation>
   }
 
   // Método que retorna a pilha de páginas para o Navigator 2.0.
-  List<Page> get pages => _pages;
+  List<Page> get pages {
+    if (_pages.isEmpty) {
+      print(
+          'A pilha de navegação está vazia. Certifique-se de que uma página inicial foi configurada.');
+    }
+    return _pages;
+  }
 
   // Define a navegação e trata a remoção de páginas (quando o botão de voltar for pressionado).
   @override
@@ -74,7 +80,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
       key: navigatorKey,
       pages: _pages,
       onDidRemovePage: (route) {
-        pop();
+        pop(); // Remove a página quando ela é removida
       },
     );
   }
