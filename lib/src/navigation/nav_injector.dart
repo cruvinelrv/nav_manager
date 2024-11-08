@@ -27,7 +27,8 @@ class NavInjector {
   void _printRoutes() {
     print('Rotas atuais na pilha de navegação:');
     for (var routes in _routes.entries) {
-      print((routes.key as ValueKey).value);
+      print(
+          '${routes.key == '/' ? 'Rota padrão' : routes.key} -> ${routes.value()}');
     }
   }
 
