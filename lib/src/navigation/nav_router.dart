@@ -4,6 +4,7 @@ import 'package:nav_manager/src/navigation/nav_injector.dart';
 class NavRouter extends RouterDelegate<RouteInformation>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteInformation> {
   final NavInjector _injector;
+
   @override
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -22,6 +23,21 @@ class NavRouter extends RouterDelegate<RouteInformation>
     } else {
       print('Rota não encontrada: $route');
     }
+  }
+
+  // Método que retorna a pilha de páginas para o Navigator 2.0.
+  List<Page> get pages => _pages;
+
+  // Define a navegação e trata a remoção de páginas (quando o botão de voltar for pressionado).
+  @override
+  Widget build(BuildContext context) {
+    return Navigator(
+      key: navigatorKey,
+      pages: _pages,
+      onDidRemovePage: (route) {
+        pop();
+      },
+    );
   }
 
   // Substitui a página atual com uma nova.
@@ -60,28 +76,16 @@ class NavRouter extends RouterDelegate<RouteInformation>
   // Configura uma nova rota com base nas informações passadas pela URL.
   @override
   Future<void> setNewRoutePath(RouteInformation configuration) async {
-    // Aqui podemos processar as informações da URL, caso necessário.
-    // Para simplificação, podemos usar uma única página de exemplo.
-  }
+    final route = configuration.uri;
 
-  // Método que retorna a pilha de páginas para o Navigator 2.0.
-  List<Page> get pages {
-    if (_pages.isEmpty) {
-      print(
-          'A pilha de navegação está vazia. Certifique-se de que uma página inicial foi configurada.');
+    // Aqui, usamos o route para pegar a página associada a ele
+    final pageBuilder = _injector.resolveRoute(route.toString());
+
+    if (pageBuilder != null) {
+      _addPage(pageBuilder);
+      notifyListeners();
+    } else {
+      print('Rota não encontrada: $route');
     }
-    return _pages;
-  }
-
-  // Define a navegação e trata a remoção de páginas (quando o botão de voltar for pressionado).
-  @override
-  Widget build(BuildContext context) {
-    return Navigator(
-      key: navigatorKey,
-      pages: _pages,
-      onDidRemovePage: (route) {
-        pop(); // Remove a página quando ela é removida
-      },
-    );
   }
 }
