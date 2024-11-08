@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nav_manager/src/navigation/nav_injector.dart';
+import 'package:nav_manager/nav_manager.dart';
 
 class NavRouter extends RouterDelegate<RouteInformation>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteInformation> {
@@ -60,12 +60,18 @@ class NavRouter extends RouterDelegate<RouteInformation>
     final pageBuilder = _injector.resolveRoute(route);
 
     if (pageBuilder != null) {
-      _pages = [
-        MaterialPage(
-          key: ValueKey(route),
-          child: pageBuilder(),
-        ),
-      ];
+      final newPage = MaterialPage(
+        key: ValueKey(route),
+        child: pageBuilder(),
+      );
+
+      if (_pages.isNotEmpty) {
+        _pages.removeLast(); // Remove the current page
+        _pages.add(newPage); // Add the new page
+      } else {
+        _pages.add(newPage); // Add the new page if no current page
+      }
+
       notifyListeners(); // Notifica que a navegação foi substituída
       _printPages(); // Adiciona o print para verificar as rotas após substituir uma página
     } else {
