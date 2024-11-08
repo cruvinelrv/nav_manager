@@ -11,13 +11,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
   // Lista de páginas atuais na pilha de navegação.
   List<Page> _pages = [];
 
-  NavRouter(this._injector) {
-    // Adiciona a rota inicial à pilha de navegação
-    final initialPageBuilder = _injector.resolveRoute('/');
-    if (initialPageBuilder != null) {
-      _addPage(initialPageBuilder);
-    }
-  }
+  NavRouter(this._injector);
 
   // Método para adicionar uma nova página à pilha.
   Future<void> to(String route) async {
@@ -40,12 +34,8 @@ class NavRouter extends RouterDelegate<RouteInformation>
     return Navigator(
       key: navigatorKey,
       pages: _pages,
-      onPopPage: (route, result) {
-        if (!route.didPop(result)) {
-          return false;
-        }
+      onDidRemovePage: (route) {
         pop();
-        return true;
       },
     );
   }
