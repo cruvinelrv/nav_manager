@@ -1,0 +1,49 @@
+import 'package:nav_manager/src/dependency_injection/dependency_injector.dart';
+import 'package:nav_manager/src/dependency_injection/dependency_scope_enum.dart';
+import 'package:nav_manager/src/module/module.dart';
+import 'package:nav_manager/src/navigation/nav_injector.dart';
+
+class NavManagerConfig {
+  final bool isMultRepo;
+  final Map<String, Module> localModules;
+  final Map<String, String> remoteModules;
+  final DependencyScopeEnum dependencyScope;
+  final DependencyInjector injectorType;
+
+  NavManagerConfig({
+    this.isMultRepo = false,
+    this.localModules = const {},
+    this.remoteModules = const {},
+    this.dependencyScope = DependencyScopeEnum.singleton,
+    required this.injectorType,
+  });
+
+  /// Método para configurar e registrar módulos.
+  void configureModules(NavInjector injector) {
+    // Configurar módulos locais
+    for (var module in localModules.values) {
+      module.registerDependencies(injector);
+      module.registerRoutes(injector);
+    }
+
+    // Configurar módulos remotos se for multirepo
+    if (isMultRepo) {
+      for (var entry in remoteModules.entries) {
+        print('Verificando módulo remoto: ${entry.key} de ${entry.value}');
+      }
+    }
+  }
+
+  /// Método de fábrica para criar uma configuração padrão.
+  static NavManagerConfig createDefaultConfig({
+    required DependencyInjector injector,
+  }) {
+    return NavManagerConfig(
+      isMultRepo: false,
+      localModules: {},
+      remoteModules: {},
+      dependencyScope: DependencyScopeEnum.singleton,
+      injectorType: injector,
+    );
+  }
+}
