@@ -20,6 +20,15 @@ class NavInjector {
       throw ArgumentError('A rota "$route" já foi registrada.');
     }
     _routes[route] = pageBuilder;
+    _printRoutes();
+  }
+
+  // Método para imprimir as rotas atuais na lista de páginas
+  void _printRoutes() {
+    print('Rotas atuais na pilha de navegação:');
+    for (var routes in _routes.entries) {
+      print((routes.key as ValueKey).value);
+    }
   }
 
   /// Resolve uma dependência registrada
