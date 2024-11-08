@@ -15,6 +15,7 @@ class NavInjector {
 
   /// Registra uma rota com a chave correspondente
   void registerRoute(String route, Widget Function() pageBuilder) {
+    debugPrint('Registrando rota: $route');
     if (_routes.containsKey(route)) {
       throw ArgumentError('A rota "$route" já foi registrada.');
     }
