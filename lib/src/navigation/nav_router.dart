@@ -23,6 +23,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
     } else {
       _pages = [];
     }
+    _printPages(); // Adiciona o print para verificar as rotas na inicialização
   }
 
   // Método para adicionar uma nova página à pilha.
@@ -32,6 +33,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
     if (pageBuilder != null) {
       _addPage(pageBuilder);
       notifyListeners(); // Notifica a mudança no estado da navegação
+      _printPages(); // Adiciona o print para verificar as rotas após adicionar uma nova página
     } else {
       print('Rota não encontrada: $route');
     }
@@ -65,6 +67,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
         ),
       ];
       notifyListeners(); // Notifica que a navegação foi substituída
+      _printPages(); // Adiciona o print para verificar as rotas após substituir uma página
     } else {
       print('Rota não encontrada: $route');
     }
@@ -75,6 +78,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
     if (_pages.isNotEmpty) {
       _pages.removeLast();
       notifyListeners(); // Notifica que uma página foi removida
+      _printPages(); // Adiciona o print para verificar as rotas após remover uma página
     }
   }
 
@@ -103,8 +107,17 @@ class NavRouter extends RouterDelegate<RouteInformation>
         ),
       ];
       notifyListeners();
+      _printPages(); // Adiciona o print para verificar as rotas após configurar uma nova rota
     } else {
       print('Rota não encontrada: $route');
+    }
+  }
+
+  // Método para imprimir as rotas atuais na lista de páginas
+  void _printPages() {
+    print('Rotas atuais na pilha de navegação:');
+    for (var page in _pages) {
+      print((page.key as ValueKey).value);
     }
   }
 }

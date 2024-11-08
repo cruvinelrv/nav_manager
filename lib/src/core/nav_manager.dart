@@ -2,14 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:nav_manager/nav_manager.dart';
 
 abstract class NavModule {
-  /// Método que configura rotas e dependências no injetor.
   void configure(NavInjector injector);
 }
 
 /// Widget principal para inicializar a navegação.
 class NavManager extends StatefulWidget {
-  final NavModule module; // Módulo inicial
-  final Widget child; // Widget principal da aplicação
+  final NavModule module;
+  final Widget child;
 
   const NavManager({
     super.key,
@@ -32,7 +31,6 @@ class _NavManagerState extends State<NavManager> {
   }
 
   void _initializeModule(NavModule module) {
-    // Inicializa as rotas e dependências do módulo
     module.configure(_injector);
   }
 
