@@ -7,7 +7,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
 
   @override
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-
+  String _currentPath = '/';
   // Lista de páginas atuais na pilha de navegação.
   List<Page> _pages = [];
 
@@ -15,7 +15,8 @@ class NavRouter extends RouterDelegate<RouteInformation>
     // Adiciona a rota inicial à pilha de navegação
     final initialPageBuilder = _injector.resolveRoute('/');
     if (initialPageBuilder != null) {
-      _addPage(initialPageBuilder);
+      _addPage(
+          initialPageBuilder); // <-- Aqui a rota inicial '/' é adicionada à lista _pages
     }
   }
 
@@ -32,7 +33,8 @@ class NavRouter extends RouterDelegate<RouteInformation>
   }
 
   // Método que retorna a pilha de páginas para o Navigator 2.0.
-  List<Page> get pages => _pages;
+  @override
+  List<Page> get pages => List.of(_pages);
 
   // Define a navegação e trata a remoção de páginas (quando o botão de voltar for pressionado).
   @override
