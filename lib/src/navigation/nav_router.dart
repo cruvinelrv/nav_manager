@@ -76,10 +76,11 @@ class NavRouter extends RouterDelegate<RouteInformation>
   // Configura uma nova rota com base nas informações passadas pela URL.
   @override
   Future<void> setNewRoutePath(RouteInformation configuration) async {
-    final route = configuration.uri;
+    // Usando o URI para acessar o caminho da rota.
+    final route = configuration.uri.path.isEmpty ? '/' : configuration.uri.path;
 
     // Aqui, usamos o route para pegar a página associada a ele
-    final pageBuilder = _injector.resolveRoute(route.toString());
+    final pageBuilder = _injector.resolveRoute(route);
 
     if (pageBuilder != null) {
       _addPage(pageBuilder);
