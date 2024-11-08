@@ -2,12 +2,12 @@
 
 import '../navigation/nav_injector.dart';
 
-abstract class Module {
+abstract class NavModule {
   void registerDependencies(NavInjector injector);
   void registerRoutes(NavInjector injector);
 }
 
-class LocalModule implements Module {
+class LocalModule implements NavModule {
   @override
   void registerDependencies(NavInjector injector) {
     // Registrar dependências locais
@@ -21,7 +21,7 @@ class LocalModule implements Module {
   }
 }
 
-class RemoteModule implements Module {
+class RemoteModule implements NavModule {
   @override
   void registerDependencies(NavInjector injector) {
     // Registrar dependências remotas

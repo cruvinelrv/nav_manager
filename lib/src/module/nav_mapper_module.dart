@@ -1,19 +1,19 @@
 // lib/src/map_module.dart
 
 import '../navigation/nav_injector.dart';
-import 'module.dart';
+import 'nav_module.dart';
 
-class MapModule {
+class NavMapperModule {
   final String name;
-  final List<Module> localModules;
-  final List<Module> remoteModules;
+  final List<NavModule> localModules;
+  final List<NavModule> remoteModules;
   final Map<String, dynamic> dependencies;
 
-  MapModule({
+  NavMapperModule({
     required this.name,
-    required this.localModules,
-    required this.remoteModules,
-    required this.dependencies,
+    this.localModules = const [],
+    this.remoteModules = const [],
+    this.dependencies = const {},
   });
 
   // Configura os módulos locais e remotos
@@ -26,7 +26,7 @@ class MapModule {
   }
 
   // Registra dependências e rotas para os módulos locais e remotos
-  void _registerModules(NavInjector injector, List<Module> modules) {
+  void _registerModules(NavInjector injector, List<NavModule> modules) {
     for (var module in modules) {
       // Passando o injector para os métodos registerDependencies e registerRoutes
       module.registerDependencies(injector);

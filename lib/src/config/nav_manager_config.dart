@@ -1,11 +1,11 @@
 import 'package:nav_manager/src/dependency_injection/dependency_injector.dart';
 import 'package:nav_manager/src/dependency_injection/dependency_scope_enum.dart';
-import 'package:nav_manager/src/module/module.dart';
+import 'package:nav_manager/src/module/nav_module.dart';
 import 'package:nav_manager/src/navigation/nav_injector.dart';
 
 class NavManagerConfig {
   final bool isMultRepo;
-  final Map<String, Module> localModules;
+  final Map<String, NavModule> localModules;
   final Map<String, String> remoteModules;
   final DependencyScopeEnum dependencyScope;
   final DependencyInjector injectorType;
