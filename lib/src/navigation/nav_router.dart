@@ -49,9 +49,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
     return Navigator(
       key: navigatorKey,
       pages: List.of(_pages),
-      onDidRemovePage: (route) {
-        pop();
-      },
+      onDidRemovePage: (route) {},
     );
   }
 
@@ -67,7 +65,8 @@ class NavRouter extends RouterDelegate<RouteInformation>
 
       if (_pages.isNotEmpty) {
         _pages.removeLast(); // Remove the current page
-        _pages.add(newPage); // Add the new page
+        _pages.add(newPage);
+        _addPage(pageBuilder); // Add the new page
       } else {
         _pages.add(newPage); // Add the new page if no current page
       }
