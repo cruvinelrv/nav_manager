@@ -6,7 +6,7 @@ class NavRouteInformationParser extends RouteInformationParser<String> {
       RouteInformation routeInformation) async {
     final uri = routeInformation.uri;
 
-    return uri.path.isNotEmpty ? uri.path : '/';
+    return uri.toString();
   }
 
   @override
