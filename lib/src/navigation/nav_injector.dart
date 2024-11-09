@@ -50,6 +50,14 @@ class NavInjector {
     }
     _routes['/'] = pageBuilder;
   }
+
+  /// Método para imprimir todas as rotas registradas
+  void printRoutes() {
+    print('Rotas registradas na lista:');
+    _routes.forEach((key, value) {
+      print('Rota: $key');
+    });
+  }
 }
 // import 'package:flutter/material.dart';
 

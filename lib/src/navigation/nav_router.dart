@@ -31,7 +31,20 @@ class NavRouter extends RouterDelegate<RouteInformation>
     final pageBuilder = _injector.resolveRoute(route);
 
     if (pageBuilder != null) {
-      _addPage(pageBuilder);
+      _addPage(route, pageBuilder);
+      notifyListeners(); // Notifica a mudança no estado da navegação
+      _printPages(); // Adiciona o print para verificar as rotas após adicionar uma nova página
+    } else {
+      print('Rota não encontrada: $route');
+    }
+  }
+
+  // Método para adicionar uma nova página à pilha.
+  Future<void> navigateTo(String route) async {
+    final pageBuilder = _injector.resolveRoute(route);
+
+    if (pageBuilder != null) {
+      _addPage(route, pageBuilder);
       notifyListeners(); // Notifica a mudança no estado da navegação
       _printPages(); // Adiciona o print para verificar as rotas após adicionar uma nova página
     } else {
@@ -49,7 +62,9 @@ class NavRouter extends RouterDelegate<RouteInformation>
     return Navigator(
       key: navigatorKey,
       pages: List.of(_pages),
-      onDidRemovePage: (route) {},
+      onDidRemovePage: (result) {
+        pop();
+      },
     );
   }
 
@@ -65,8 +80,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
 
       if (_pages.isNotEmpty) {
         _pages.removeLast(); // Remove the current page
-        _pages.add(newPage);
-        _addPage(pageBuilder); // Add the new page
+        _pages.add(newPage); // Add the new page
       } else {
         _pages.add(newPage); // Add the new page if no current page
       }
@@ -88,9 +102,9 @@ class NavRouter extends RouterDelegate<RouteInformation>
   }
 
   // Adiciona uma página à pilha de navegação.
-  void _addPage(Widget Function() pageBuilder) {
+  void _addPage(String route, Widget Function() pageBuilder) {
     _pages.add(MaterialPage(
-      key: ValueKey(pageBuilder),
+      key: ValueKey(route),
       child: pageBuilder(),
     ));
   }
