@@ -11,16 +11,24 @@ class NavRouter extends RouterDelegate<RouteInformation>
   late List<Page> _pages;
 
   NavRouter(this._injector, {this.escapePageBuilder}) {
+    // Adicionamos a configuração pós-frame para garantir que a navegação aconteça após a construção
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // Registra as rotas iniciais e configura o comportamento de fallback
-      _pages = [
-        _buildInitialPage('/'), // Rota padrão "/"
-        _buildEscapePage(), // Rota de escape
-      ];
-      _injectRoutesFromModule(); // Injeta as novas rotas a partir do AppModule
-      notifyListeners(); // Notifica a navegação que o estado foi atualizado
-      _printPages(); // Imprime as rotas atuais
+      // A navegação e a configuração de rotas acontecem depois da construção inicial
+      _initializePages();
     });
+  }
+
+  void _initializePages() {
+    // Inicializa as páginas padrão
+    _pages = [
+      _buildInitialPage('/'), // Rota padrão "/"
+      _buildEscapePage(), // Rota de escape
+    ];
+
+    // Injeta as novas rotas a partir do AppModule
+    _injectRoutesFromModule();
+    notifyListeners(); // Notifica que o estado da navegação foi alterado
+    _printPages(); // Imprime as rotas registradas
   }
 
   @override
