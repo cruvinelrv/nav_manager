@@ -4,59 +4,25 @@ import 'package:nav_manager/nav_manager.dart';
 class NavRouter extends RouterDelegate<RouteInformation>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteInformation> {
   final NavInjector _injector;
+  final Widget Function()?
+      escapePageBuilder; // Callback para a página de escape customizável
 
   @override
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   late List<Page> _pages;
 
-  NavRouter(this._injector) {
-    final initialPageBuilder = _injector.resolveRoute('/');
-    if (initialPageBuilder != null) {
-      _pages = [
-        MaterialPage(
-          key: ValueKey(DateTime.now()
-              .millisecondsSinceEpoch
-              .toString()), // Chave única gerada dinamicamente
-          child: initialPageBuilder(),
-        ),
-      ];
-    } else {
-      _pages = [];
-    }
+  NavRouter(this._injector, {this.escapePageBuilder}) {
+    // Inicializa com a EscapePage caso não tenha rota válida
+    _pages = [
+      _buildEscapePage(), // Página de escape por padrão
+    ];
+
     _printPages();
   }
 
-  // Método para adicionar uma nova página à pilha.
-  Future<void> to(String route) async {
-    final pageBuilder = _injector.resolveRoute(route);
-
-    if (pageBuilder != null) {
-      _addPage(route, pageBuilder);
-      notifyListeners(); // Notifica a mudança no estado da navegação
-      _printPages(); // Adiciona o print para verificar as rotas após adicionar uma nova página
-    } else {
-      print('Rota não encontrada: $route');
-    }
-  }
-
-  // Método para adicionar uma nova página à pilha.
-  Future<void> navigateTo(String route) async {
-    final pageBuilder = _injector.resolveRoute(route);
-
-    if (pageBuilder != null) {
-      _addPage(route, pageBuilder);
-      notifyListeners(); // Notifica a mudança no estado da navegação
-      _printPages(); // Adiciona o print para verificar as rotas após adicionar uma nova página
-    } else {
-      print('Rota não encontrada: $route');
-    }
-  }
-
-  // Método que retorna a pilha de páginas para o Navigator 2.0.
   @override
   List<Page> get pages => List.of(_pages);
 
-  // Define a navegação e trata a remoção de páginas (quando o botão de voltar for pressionado).
   @override
   Widget build(BuildContext context) {
     return Navigator(
@@ -68,40 +34,28 @@ class NavRouter extends RouterDelegate<RouteInformation>
     );
   }
 
-  // Substitui a página atual com uma nova.
-  Future<void> replace(String route) async {
+  Future<void> to(String route) async {
     final pageBuilder = _injector.resolveRoute(route);
 
     if (pageBuilder != null) {
-      final newPage = MaterialPage(
-        key: ValueKey(route),
-        child: pageBuilder(),
-      );
-
-      if (_pages.isNotEmpty) {
-        _pages.removeLast(); // Remove the current page
-        _pages.add(newPage); // Add the new page
-      } else {
-        _pages.add(newPage); // Add the new page if no current page
-      }
-
-      notifyListeners(); // Notifica que a navegação foi substituída
-      _printPages(); // Adiciona o print para verificar as rotas após substituir uma página
+      _addPage(route, pageBuilder);
+      notifyListeners();
+      _printPages();
     } else {
       print('Rota não encontrada: $route');
+      _addPage('escape', () => _buildEscapePage().child);
+      notifyListeners();
     }
   }
 
-  // Pop a página da pilha de navegação.
   void pop() {
     if (_pages.isNotEmpty) {
       _pages.removeLast();
-      notifyListeners(); // Notifica que uma página foi removida
-      _printPages(); // Adiciona o print para verificar as rotas após remover uma página
+      notifyListeners();
+      _printPages();
     }
   }
 
-  // Adiciona uma página à pilha de navegação.
   void _addPage(String route, Widget Function() pageBuilder) {
     _pages.add(MaterialPage(
       key: ValueKey(route),
@@ -109,13 +63,9 @@ class NavRouter extends RouterDelegate<RouteInformation>
     ));
   }
 
-  // Configura uma nova rota com base nas informações passadas pela URL.
   @override
   Future<void> setNewRoutePath(RouteInformation configuration) async {
-    // Usando o URI para acessar o caminho da rota.
     final route = configuration.uri.path.isEmpty ? '/' : configuration.uri.path;
-
-    // Aqui, usamos o route para pegar a página associada a ele
     final pageBuilder = _injector.resolveRoute(route);
 
     if (pageBuilder != null) {
@@ -126,13 +76,29 @@ class NavRouter extends RouterDelegate<RouteInformation>
         ),
       ];
       notifyListeners();
-      _printPages(); // Adiciona o print para verificar as rotas após configurar uma nova rota
+      _printPages();
     } else {
       print('Rota não encontrada: $route');
+      _pages = [
+        _buildEscapePage(), // Usa a página de escape quando a rota não é encontrada
+      ];
+      notifyListeners();
     }
   }
 
-  // Método para imprimir as rotas atuais na lista de páginas
+  MaterialPage _buildEscapePage() {
+    return MaterialPage(
+      key: const ValueKey('escape'),
+      child: escapePageBuilder != null
+          ? escapePageBuilder!()
+          : Scaffold(
+              appBar: AppBar(title: const Text('Página não encontrada')),
+              body: const Center(
+                  child: Text('A rota solicitada não foi encontrada.')),
+            ),
+    );
+  }
+
   void _printPages() {
     print('Rotas atuais na pilha de navegação:');
     for (var page in _pages) {
