@@ -7,23 +7,23 @@ class NavRouter extends RouterDelegate<RouteInformation>
 
   @override
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
-  // Lista de páginas atuais na pilha de navegação.
   late List<Page> _pages;
 
   NavRouter(this._injector) {
-    // Inicializa a lista de páginas com a rota inicial '/'
     final initialPageBuilder = _injector.resolveRoute('/');
     if (initialPageBuilder != null) {
       _pages = [
         MaterialPage(
-          key: const ValueKey('/'),
+          key: ValueKey(DateTime.now()
+              .millisecondsSinceEpoch
+              .toString()), // Chave única gerada dinamicamente
           child: initialPageBuilder(),
         ),
       ];
     } else {
       _pages = [];
     }
-    _printPages(); // Adiciona o print para verificar as rotas na inicialização
+    _printPages();
   }
 
   // Método para adicionar uma nova página à pilha.
