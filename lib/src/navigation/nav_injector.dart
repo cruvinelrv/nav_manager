@@ -40,15 +40,7 @@ class NavInjector {
       return pageBuilder;
     }
     debugPrint('Rota não encontrada: $route');
-    return _routes['/']; // Retorna a rota padrão se não encontrada
-  }
-
-  /// Método para registrar uma rota padrão (caso o usuário não tenha definido)
-  void registerDefaultRoute(Widget Function() pageBuilder) {
-    if (_routes.containsKey('/')) {
-      debugPrint('A rota padrão "/" já foi registrada e será sobrescrita.');
-    }
-    _routes['/'] = pageBuilder;
+    return null; // Retorna null se a rota não for encontrada
   }
 
   /// Método para obter todas as rotas registradas
