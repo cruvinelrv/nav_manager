@@ -11,9 +11,12 @@ class NavRouter extends RouterDelegate<RouteInformation>
   late List<Page> _pages;
 
   NavRouter(this._injector, {this.escapePageBuilder}) {
-    _pages = [];
+    _pages = [
+      _buildInitialPage('/'), // Rota padrão "/"
+      _buildEscapePage(), // Rota de escape
+    ];
 
-    _injectRoutesFromModule(); // Injeta as rotas a partir do AppModule
+    _injectRoutesFromModule(); // Injeta as novas rotas a partir do AppModule
 
     // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -40,29 +43,20 @@ class NavRouter extends RouterDelegate<RouteInformation>
 
     if (pageBuilder != null) {
       _addPage(route, pageBuilder);
-      // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-        _printPages();
-      });
+      notifyListeners();
+      _printPages();
     } else {
       print('Rota não encontrada: $route');
       _addPage('escape', () => _buildEscapePage().child);
-      // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-      });
+      notifyListeners();
     }
   }
 
   void pop() {
     if (_pages.isNotEmpty) {
       _pages.removeLast();
-      // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-        _printPages();
-      });
+      notifyListeners();
+      _printPages();
     }
   }
 
@@ -89,21 +83,25 @@ class NavRouter extends RouterDelegate<RouteInformation>
           child: pageBuilder(),
         ),
       ];
-      // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-        _printPages();
-      });
+      notifyListeners();
+      _printPages();
     } else {
       print('Rota não encontrada: $route');
       _pages = [
         _buildEscapePage(), // Usa a página de escape quando a rota não é encontrada
       ];
-      // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-      });
+      notifyListeners();
     }
+  }
+
+  // Construir a rota inicial "/"
+  MaterialPage _buildInitialPage(String route) {
+    return MaterialPage(
+      key: const ValueKey('/'),
+      child: _injector.resolveRoute(route)?.call() ??
+          const Scaffold(
+              body: Center(child: Text('Página inicial não encontrada.'))),
+    );
   }
 
   // Construir a página de escape
@@ -120,7 +118,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
     );
   }
 
-  // Injeta as rotas a partir do AppModule
+  // Injeta as novas rotas a partir do AppModule
   void _injectRoutesFromModule() {
     final routes = _injector.getRoutes();
     for (var route in routes) {
