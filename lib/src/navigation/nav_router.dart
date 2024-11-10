@@ -124,10 +124,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
   void _injectRoutesFromModule() {
     final routes = _injector.getRoutes();
     for (var route in routes) {
-      _pages.add(MaterialPage(
-        key: ValueKey(route),
-        child: _injector.resolveRoute(route)?.call() ?? const SizedBox(),
-      ));
+      _addPage(route, _injector.resolveRoute(route)!);
     }
   }
 
