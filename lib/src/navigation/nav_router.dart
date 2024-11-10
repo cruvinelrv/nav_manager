@@ -32,8 +32,12 @@ class NavRouter extends RouterDelegate<RouteInformation>
     return Navigator(
       key: navigatorKey,
       pages: List.of(_pages),
-      onDidRemovePage: (result) {
+      onPopPage: (route, result) {
+        if (!route.didPop(result)) {
+          return false;
+        }
         pop();
+        return true;
       },
     );
   }
@@ -43,20 +47,29 @@ class NavRouter extends RouterDelegate<RouteInformation>
 
     if (pageBuilder != null) {
       _addPage(route, pageBuilder);
-      notifyListeners();
-      _printPages();
+      // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+        _printPages();
+      });
     } else {
       print('Rota não encontrada: $route');
       _addPage('escape', () => _buildEscapePage().child);
-      notifyListeners();
+      // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
     }
   }
 
   void pop() {
     if (_pages.isNotEmpty) {
       _pages.removeLast();
-      notifyListeners();
-      _printPages();
+      // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+        _printPages();
+      });
     }
   }
 
@@ -79,14 +92,20 @@ class NavRouter extends RouterDelegate<RouteInformation>
           child: pageBuilder(),
         ),
       ];
-      notifyListeners();
-      _printPages();
+      // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+        _printPages();
+      });
     } else {
       print('Rota não encontrada: $route');
       _pages = [
         _buildEscapePage(), // Usa a página de escape quando a rota não é encontrada
       ];
-      notifyListeners();
+      // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
     }
   }
 
