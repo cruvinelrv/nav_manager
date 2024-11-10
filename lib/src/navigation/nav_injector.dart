@@ -51,6 +51,11 @@ class NavInjector {
     _routes['/'] = pageBuilder;
   }
 
+  /// Método para obter todas as rotas registradas
+  List<String> getRoutes() {
+    return _routes.keys.toList();
+  }
+
   /// Método para imprimir todas as rotas registradas
   void printRoutes() {
     print('Rotas registradas na lista:');

@@ -4,19 +4,18 @@ import 'package:nav_manager/nav_manager.dart';
 class NavRouter extends RouterDelegate<RouteInformation>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteInformation> {
   final NavInjector _injector;
-  final Widget Function()?
-      escapePageBuilder; // Callback para a página de escape customizável
+  final Widget Function()? escapePageBuilder; // Página de escape personalizada
 
   @override
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   late List<Page> _pages;
 
   NavRouter(this._injector, {this.escapePageBuilder}) {
-    // Inicializa com a EscapePage caso não tenha rota válida
     _pages = [
-      _buildEscapePage(), // Página de escape por padrão
+      _buildInitialPage('/'), // Rota padrão "/"
+      _buildEscapePage(), // Rota de escape
     ];
-
+    _injectRoutesFromModule(); // Injeta as novas rotas a partir do AppModule
     _printPages();
   }
 
@@ -86,6 +85,17 @@ class NavRouter extends RouterDelegate<RouteInformation>
     }
   }
 
+  // Construir a rota inicial "/"
+  MaterialPage _buildInitialPage(String route) {
+    return MaterialPage(
+      key: const ValueKey('/'),
+      child: _injector.resolveRoute(route)?.call() ??
+          const Scaffold(
+              body: Center(child: Text('Página inicial não encontrada.'))),
+    );
+  }
+
+  // Construir a página de escape
   MaterialPage _buildEscapePage() {
     return MaterialPage(
       key: const ValueKey('escape'),
@@ -97,6 +107,17 @@ class NavRouter extends RouterDelegate<RouteInformation>
                   child: Text('A rota solicitada não foi encontrada.')),
             ),
     );
+  }
+
+  // Injeta as novas rotas a partir do AppModule
+  void _injectRoutesFromModule() {
+    final routes = _injector.getRoutes();
+    for (var route in routes) {
+      _pages.add(MaterialPage(
+        key: ValueKey(route),
+        child: _injector.resolveRoute(route)?.call() ?? const SizedBox(),
+      ));
+    }
   }
 
   void _printPages() {
