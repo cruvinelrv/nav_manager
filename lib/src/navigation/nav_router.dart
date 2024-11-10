@@ -11,12 +11,16 @@ class NavRouter extends RouterDelegate<RouteInformation>
   late List<Page> _pages;
 
   NavRouter(this._injector, {this.escapePageBuilder}) {
-    _pages = [
-      _buildInitialPage('/'), // Rota padrão "/"
-      _buildEscapePage(), // Rota de escape
-    ];
-    _injectRoutesFromModule(); // Injeta as novas rotas a partir do AppModule
-    _printPages();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Registra as rotas iniciais e configura o comportamento de fallback
+      _pages = [
+        _buildInitialPage('/'), // Rota padrão "/"
+        _buildEscapePage(), // Rota de escape
+      ];
+      _injectRoutesFromModule(); // Injeta as novas rotas a partir do AppModule
+      notifyListeners(); // Notifica a navegação que o estado foi atualizado
+      _printPages(); // Imprime as rotas atuais
+    });
   }
 
   @override
