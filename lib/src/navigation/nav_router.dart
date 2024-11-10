@@ -32,7 +32,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
     return Navigator(
       key: navigatorKey,
       pages: List.of(_pages),
-      onDidRemovePage: (route) {
+      onDidRemovePage: (result) {
         pop();
       },
     );
@@ -61,10 +61,6 @@ class NavRouter extends RouterDelegate<RouteInformation>
   }
 
   void _addPage(String route, Widget Function() pageBuilder) {
-    // Verifica se a rota já está presente na lista de páginas
-    if (_pages.any((page) => (page.key as ValueKey).value == route)) {
-      return;
-    }
     _pages.add(MaterialPage(
       key: ValueKey(route),
       child: pageBuilder(),
@@ -122,7 +118,10 @@ class NavRouter extends RouterDelegate<RouteInformation>
   void _injectRoutesFromModule() {
     final routes = _injector.getRoutes();
     for (var route in routes) {
-      _addPage(route, _injector.resolveRoute(route)!);
+      _pages.add(MaterialPage(
+        key: ValueKey(route),
+        child: _injector.resolveRoute(route)?.call() ?? const SizedBox(),
+      ));
     }
   }
 
