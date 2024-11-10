@@ -4,31 +4,24 @@ import 'package:nav_manager/nav_manager.dart';
 class NavRouter extends RouterDelegate<RouteInformation>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteInformation> {
   final NavInjector _injector;
-  final Widget Function()? escapePageBuilder; // Página de escape personalizada
+  final Widget Function()? escapePageBuilder;
 
   @override
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   late List<Page> _pages;
 
   NavRouter(this._injector, {this.escapePageBuilder}) {
-    // Adicionamos a configuração pós-frame para garantir que a navegação aconteça após a construção
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // A navegação e a configuração de rotas acontecem depois da construção inicial
-      _initializePages();
-    });
-  }
-
-  void _initializePages() {
-    // Inicializa as páginas padrão
     _pages = [
       _buildInitialPage('/'), // Rota padrão "/"
       _buildEscapePage(), // Rota de escape
     ];
 
-    // Injeta as novas rotas a partir do AppModule
-    _injectRoutesFromModule();
-    notifyListeners(); // Notifica que o estado da navegação foi alterado
-    _printPages(); // Imprime as rotas registradas
+    _injectRoutesFromModule(); // Injeta as novas rotas a partir do AppModule
+
+    // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _printPages();
+    });
   }
 
   @override
