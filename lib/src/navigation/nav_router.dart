@@ -11,12 +11,9 @@ class NavRouter extends RouterDelegate<RouteInformation>
   late List<Page> _pages;
 
   NavRouter(this._injector, {this.escapePageBuilder}) {
-    _pages = [
-      _buildInitialPage('/'), // Rota padrão "/"
-      _buildEscapePage(), // Rota de escape
-    ];
+    _pages = [];
 
-    _injectRoutesFromModule(); // Injeta as novas rotas a partir do AppModule
+    _injectRoutesFromModule(); // Injeta as rotas a partir do AppModule
 
     // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -32,12 +29,8 @@ class NavRouter extends RouterDelegate<RouteInformation>
     return Navigator(
       key: navigatorKey,
       pages: List.of(_pages),
-      onPopPage: (route, result) {
-        if (!route.didPop(result)) {
-          return false;
-        }
+      onDidRemovePage: (route) {
         pop();
-        return true;
       },
     );
   }
@@ -74,6 +67,10 @@ class NavRouter extends RouterDelegate<RouteInformation>
   }
 
   void _addPage(String route, Widget Function() pageBuilder) {
+    // Verifica se a rota já está presente na lista de páginas
+    if (_pages.any((page) => (page.key as ValueKey).value == route)) {
+      return;
+    }
     _pages.add(MaterialPage(
       key: ValueKey(route),
       child: pageBuilder(),
@@ -109,16 +106,6 @@ class NavRouter extends RouterDelegate<RouteInformation>
     }
   }
 
-  // Construir a rota inicial "/"
-  MaterialPage _buildInitialPage(String route) {
-    return MaterialPage(
-      key: const ValueKey('/'),
-      child: _injector.resolveRoute(route)?.call() ??
-          const Scaffold(
-              body: Center(child: Text('Página inicial não encontrada.'))),
-    );
-  }
-
   // Construir a página de escape
   MaterialPage _buildEscapePage() {
     return MaterialPage(
@@ -133,7 +120,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
     );
   }
 
-  // Injeta as novas rotas a partir do AppModule
+  // Injeta as rotas a partir do AppModule
   void _injectRoutesFromModule() {
     final routes = _injector.getRoutes();
     for (var route in routes) {
