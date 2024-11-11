@@ -1,6 +1,7 @@
 library nav_manager;
 
 export 'src/config/nav_manager_config.dart';
+export 'src/config/nav_routes_config.dart';
 export 'src/core/nav_manager.dart';
 export 'src/navigation/nav_injector.dart';
 export 'src/navigation/nav_router.dart';

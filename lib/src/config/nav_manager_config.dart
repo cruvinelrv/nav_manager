@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:nav_manager/src/dependency_injection/dependency_injector.dart';
 import 'package:nav_manager/src/dependency_injection/dependency_scope_enum.dart';
 import 'package:nav_manager/src/module/nav_module.dart';
@@ -7,15 +8,17 @@ class NavManagerConfig {
   final bool isMultRepo;
   final Map<String, NavModule> localModules;
   final Map<String, String> remoteModules;
+  final Map<String, Widget Function(BuildContext)> routes;
   final DependencyScopeEnum dependencyScope;
-  final DependencyInjector injectorType;
+  final DependencyInjector? injectorType;
 
   NavManagerConfig({
     this.isMultRepo = false,
     this.localModules = const {},
     this.remoteModules = const {},
+    required this.routes,
     this.dependencyScope = DependencyScopeEnum.singleton,
-    required this.injectorType,
+    this.injectorType,
   });
 
   /// Método para configurar e registrar módulos.
@@ -42,6 +45,7 @@ class NavManagerConfig {
       isMultRepo: false,
       localModules: {},
       remoteModules: {},
+      routes: {},
       dependencyScope: DependencyScopeEnum.singleton,
       injectorType: injector,
     );

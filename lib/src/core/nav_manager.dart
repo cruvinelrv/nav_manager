@@ -9,14 +9,13 @@ abstract class NavModule {
 class NavManager extends StatefulWidget {
   final NavModule module;
   final Widget child;
-  final Widget Function()?
-      escapePageBuilder; // Nova propriedade para definir a página de escape
+  final Widget Function()? escapePageBuilder; // Nov
 
   const NavManager({
     super.key,
     required this.module,
     required this.child,
-    this.escapePageBuilder, // Passa a página de escape customizável
+    this.escapePageBuilder,
   });
 
   @override
@@ -40,10 +39,8 @@ class _NavManagerState extends State<NavManager> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerDelegate: NavRouter(
-        _injector,
-        escapePageBuilder: widget.escapePageBuilder,
-      ),
+      routerDelegate:
+          NavRouter(_injector, escapePageBuilder: widget.escapePageBuilder),
       routeInformationParser: NavRouteInformationParser(),
     );
   }
