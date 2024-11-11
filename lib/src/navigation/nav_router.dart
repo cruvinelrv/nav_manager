@@ -11,15 +11,22 @@ class NavRouter extends RouterDelegate<RouteInformation>
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
   NavRouter(this._injector, {this.escapePageBuilder}) {
-    // Inicializar as rotas corretamente
     _initializeRoutes();
   }
 
   @override
-  List<Page> get pages => List.of(_pages);
+  List<Page> get pages {
+    // Log para mostrar as chaves das páginas
+    for (var page in _pages) {
+      print('Página: ${page.key}');
+    }
+    return List.of(_pages);
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Log para mostrar a chave do Navigator
+    print('Chave do Navigator: ${navigatorKey}');
     return Navigator(
       key: navigatorKey,
       pages: _pages,
@@ -29,41 +36,32 @@ class NavRouter extends RouterDelegate<RouteInformation>
     );
   }
 
-  // Inicializa as rotas com as páginas
   void _initializeRoutes() {
-    // Registra as rotas e garante que a página inicial seja construída
-    final routes = _injector.getRoutes(); // Obter todas as rotas registradas
+    final routes = _injector.getRoutes();
     for (var route in routes) {
-      final pageBuilder =
-          _injector.resolveRoute(route); // Resolva a função para a rota
+      final pageBuilder = _injector.resolveRoute(route);
       if (pageBuilder != null) {
-        _addPage(route, pageBuilder); // Adiciona a página à pilha
+        _addPage(route, pageBuilder);
       }
     }
 
-    // Se nenhuma rota foi adicionada (isso significa que não há rotas registradas), adiciona a EscapePage
     if (_pages.isEmpty) {
       _addEscapePage();
     }
   }
 
   void _addPage(String route, Widget Function(NavInjector) pageBuilder) {
-    // Gerando uma chave dinâmica para a página
-    final dynamicKey =
-        ValueKey('$route-${DateTime.now().millisecondsSinceEpoch}');
-
-    // Evita adicionar páginas duplicadas à pilha, com chave dinâmica
-    if (!_pages.any((page) => page.key == dynamicKey)) {
+    final pageKey = ValueKey('$route-${DateTime.now().millisecondsSinceEpoch}');
+    if (!_pages.any((page) => page.key == pageKey)) {
       _pages.add(MaterialPage(
-        key: dynamicKey, // Usando a chave dinâmica
+        key: pageKey,
         child: pageBuilder(_injector),
       ));
-    } else {
-      print("Página já existe na pilha: $route");
+      // Log para mostrar a chave da página adicionada
+      print('Página adicionada: ${pageKey}');
     }
   }
 
-  // Página de Escape para quando a rota não for encontrada
   void _addEscapePage() {
     _pages.add(MaterialPage(
       key: const ValueKey('escape'),
@@ -75,14 +73,13 @@ class NavRouter extends RouterDelegate<RouteInformation>
                   child: Text('A rota solicitada não foi encontrada.')),
             ),
     ));
+    print('Página de escape adicionada com chave: escape');
   }
 
-  // Método para navegar para a rota
   Future<void> to(String route) async {
     final pageBuilder = _injector.resolveRoute(route);
 
     if (pageBuilder != null) {
-      // Verifica se a rota já existe na pilha
       if (!_pages.any((page) => page.key == ValueKey(route))) {
         _addPage(route, pageBuilder);
       }
@@ -91,7 +88,6 @@ class NavRouter extends RouterDelegate<RouteInformation>
       _addEscapePage();
     }
 
-    // Notifica ouvintes após a alteração da pilha
     WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
     });
@@ -109,12 +105,12 @@ class NavRouter extends RouterDelegate<RouteInformation>
           child: pageBuilder(_injector),
         ),
       ];
+      print('Nova rota definida: $route com chave ${ValueKey(route)}');
     } else {
       _addEscapePage();
       _pages = List.of(_pages);
     }
 
-    // Notifica ouvintes após a alteração da pilha
     WidgetsBinding.instance.addPostFrameCallback((_) {
       notifyListeners();
     });
