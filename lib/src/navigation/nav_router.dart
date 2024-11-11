@@ -15,8 +15,6 @@ class NavRouter extends RouterDelegate<RouteInformation>
       _buildInitialPage('/'), // Rota padrão "/"
       _buildEscapePage(), // Rota de escape
     ];
-
-    configureRoutes(); // Configura as rotas automaticamente
   }
 
   @override
@@ -53,22 +51,11 @@ class NavRouter extends RouterDelegate<RouteInformation>
     });
   }
 
-  // Configura as rotas a partir do NavInjector
-  void configureRoutes() {
-    final routes = _injector.getRoutes();
-    for (var route in routes) {
-      _pages.add(MaterialPage(
-        key: ValueKey(route),
-        child: _injector.resolveRoute(route)?.call() ?? const SizedBox(),
-      ));
-    }
-  }
-
   // Adiciona uma nova página à pilha
-  void _addPage(String route, Widget Function() pageBuilder) {
+  void _addPage(String route, Widget Function(NavInjector) pageBuilder) {
     _pages.add(MaterialPage(
       key: ValueKey(route),
-      child: pageBuilder(),
+      child: pageBuilder(_injector),
     ));
   }
 
@@ -76,7 +63,8 @@ class NavRouter extends RouterDelegate<RouteInformation>
   MaterialPage _buildInitialPage(String route) {
     return MaterialPage(
       key: ValueKey('$route-${DateTime.now().millisecondsSinceEpoch}'),
-      child: _injector.resolveRoute(route)?.call() ?? const SizedBox.shrink(),
+      child: _injector.resolveRoute(route)?.call(_injector) ??
+          const SizedBox.shrink(),
     );
   }
 
@@ -103,7 +91,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
       _pages = [
         MaterialPage(
           key: ValueKey(route),
-          child: pageBuilder(),
+          child: pageBuilder(_injector),
         ),
       ];
     } else {

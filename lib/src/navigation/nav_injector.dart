@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 class NavInjector {
   final Map<String, dynamic> _dependencies = <String, dynamic>{};
-  final Map<String, Widget Function(BuildContext)> _routes = <String,
-      Widget Function(BuildContext)>{}; // Mudamos para aceitar BuildContext
+  final Map<String, Widget Function(NavInjector)> _routes = <String,
+      Widget Function(
+          NavInjector)>{}; // Alterado para usar NavInjector ao invés de BuildContext
 
   /// Registra uma dependência com a chave correspondente
   void register(String key, dynamic dependency) {
@@ -15,7 +16,7 @@ class NavInjector {
   }
 
   /// Registra uma rota com a chave correspondente
-  void registerRoute(String route, Widget Function(BuildContext) pageBuilder) {
+  void registerRoute(String route, Widget Function(NavInjector) pageBuilder) {
     debugPrint('Registrando rota: $route');
     if (_routes.containsKey(route)) {
       throw ArgumentError('A rota "$route" já foi registrada.');
@@ -35,19 +36,18 @@ class NavInjector {
   }
 
   /// Resolve uma rota registrada e retorna um Widget
-  Widget resolveRoute(BuildContext context, String route) {
+  Widget Function(NavInjector)? resolveRoute(String route) {
     final pageBuilder = _routes[route];
     if (pageBuilder != null) {
-      // Agora passamos o BuildContext para a função de criação da página
-      return pageBuilder(context);
+      return pageBuilder;
     }
     debugPrint('Rota não encontrada: $route');
     // Se a rota não for encontrada, usamos a rota padrão '/'
-    return _routes['/']!(context);
+    return _routes['/'];
   }
 
   /// Método para registrar uma rota padrão (caso o usuário não tenha definido)
-  void registerDefaultRoute(Widget Function(BuildContext) pageBuilder) {
+  void registerDefaultRoute(Widget Function(NavInjector) pageBuilder) {
     if (_routes.containsKey('/')) {
       debugPrint('A rota padrão "/" já foi registrada e será sobrescrita.');
     }
