@@ -74,13 +74,8 @@ class NavRouter extends RouterDelegate<RouteInformation>
   }
 
   void _addPage(String route, Widget Function() pageBuilder) {
-    final key = route == '/'
-        ? ValueKey(
-            '$route-${DateTime.now().millisecondsSinceEpoch}') // Gera uma nova key para a rota inicial
-        : ValueKey(route);
-
     _pages.add(MaterialPage(
-      key: key,
+      key: ValueKey(route),
       child: pageBuilder(),
     ));
   }
@@ -117,10 +112,11 @@ class NavRouter extends RouterDelegate<RouteInformation>
   // Construir a rota inicial "/"
   MaterialPage _buildInitialPage(String route) {
     return MaterialPage(
-      key: const ValueKey('/'),
+      key: ValueKey(
+          '$route-${DateTime.now().millisecondsSinceEpoch}'), // Key única para evitar conflitos
       child: _injector.resolveRoute(route)?.call() ??
-          const Scaffold(
-              body: Center(child: Text('Página inicial não encontrada.'))),
+          const SizedBox
+              .shrink(), // Garante que o widget está vindo do AppModule
     );
   }
 
