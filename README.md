@@ -15,7 +15,7 @@ NavManager is a package that simplifies **dependency injection** and **route man
 
 To use the NavManager package in your Flutter project, you need to have the latest version of Dart and Flutter installed.
 
-1. Add the `nav_inject` package to your `pubspec.yaml` file:
+1. Add the `nav_manager` package to your `pubspec.yaml` file:
 
 ```yaml
 dependencies:
