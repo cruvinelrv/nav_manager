@@ -43,43 +43,24 @@ class NavRouter extends RouterDelegate<RouteInformation>
   }
 
   Future<void> to(String route) async {
-    // Verifica se a rota é a página inicial
-    if (route == '/') {
-      final isInitialPagePresent =
-          _pages.isNotEmpty && (_pages.first.key as ValueKey).value == '/';
+    final pageBuilder = _injector.resolveRoute(route);
 
-      // Se a página inicial não está presente, reinicia a lista de páginas
-      if (!isInitialPagePresent) {
-        _pages.clear(); // Limpa a lista de páginas
-        _pages.add(_buildInitialPage('/')); // Adiciona a página inicial
+    if (pageBuilder != null) {
+      // Verifica se a rota já existe na pilha de páginas
+      if (!_pages.any((page) => page.key == ValueKey(route))) {
+        _addPage(route, pageBuilder);
+
+        // Usando addPostFrameCallback para garantir que as mudanças de estado ocorram após a construção
         WidgetsBinding.instance.addPostFrameCallback((_) {
           notifyListeners();
-          _printPages();
-        });
-      } else {
-        // Se já está na página inicial, não faz nada
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          notifyListeners(); // Pode ser necessário dependendo do seu fluxo
         });
       }
     } else {
-      // Caso contrário, navega para outra rota
-      final pageBuilder = _injector.resolveRoute(route);
-      if (pageBuilder != null) {
-        _addPage(route, pageBuilder);
-        // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          notifyListeners();
-          _printPages();
-        });
-      } else {
-        print('Rota não encontrada: $route');
-        _addPage('escape', () => _buildEscapePage().child);
-        // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          notifyListeners();
-        });
-      }
+      print('Rota não encontrada: $route');
+      _addPage('escape', () => _buildEscapePage().child);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        notifyListeners();
+      });
     }
   }
 
