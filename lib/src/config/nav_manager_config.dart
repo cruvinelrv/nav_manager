@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nav_manager/src/dependency_injection/dependency_injector.dart';
 import 'package:nav_manager/src/dependency_injection/dependency_scope_enum.dart';
 import 'package:nav_manager/src/module/nav_module.dart';
 import 'package:nav_manager/src/navigation/nav_injector.dart';
@@ -7,10 +6,10 @@ import 'package:nav_manager/src/navigation/nav_injector.dart';
 class NavManagerConfig {
   final bool isMultRepo;
   final Map<String, NavModule> localModules;
-  final Map<String, String> remoteModules;
-  final Map<String, Widget Function(BuildContext)> routes;
+  final Map<String, NavModule> remoteModules;
+  final Map<String, Widget Function(NavInjector)> routes;
   final DependencyScopeEnum dependencyScope;
-  final DependencyInjector? injectorType;
+  final NavInjector navInjector;
 
   NavManagerConfig({
     this.isMultRepo = false,
@@ -18,15 +17,15 @@ class NavManagerConfig {
     this.remoteModules = const {},
     required this.routes,
     this.dependencyScope = DependencyScopeEnum.singleton,
-    this.injectorType,
+    required this.navInjector,
   });
 
   /// Método para configurar e registrar módulos.
-  void configureModules(NavInjector injector) {
+  void configureModules() {
     // Configurar módulos locais
     for (var module in localModules.values) {
-      module.registerDependencies(injector);
-      module.registerRoutes(injector);
+      module.registerDependencies(navInjector);
+      module.registerRoutes(navInjector);
     }
 
     // Configurar módulos remotos se for multirepo
@@ -37,9 +36,16 @@ class NavManagerConfig {
     }
   }
 
+  void configureRoutes() {
+    for (var entry in routes.entries) {
+      final routeBuilder = entry.value;
+      navInjector.registerRoute(entry.key, routeBuilder);
+    }
+  }
+
   /// Método de fábrica para criar uma configuração padrão.
   static NavManagerConfig createDefaultConfig({
-    required DependencyInjector injector,
+    required NavInjector navInjector,
   }) {
     return NavManagerConfig(
       isMultRepo: false,
@@ -47,7 +53,7 @@ class NavManagerConfig {
       remoteModules: {},
       routes: {},
       dependencyScope: DependencyScopeEnum.singleton,
-      injectorType: injector,
+      navInjector: navInjector,
     );
   }
 }
