@@ -12,8 +12,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
 
   NavRouter(this._injector, {this.escapePageBuilder}) {
     _pages = [
-      _buildInitialPage('/'), // Rota padrão "/"
-      _buildEscapePage(), // Rota de escape
+      _buildEscapePage(),
     ];
   }
 
@@ -57,15 +56,6 @@ class NavRouter extends RouterDelegate<RouteInformation>
       key: ValueKey(route),
       child: pageBuilder(_injector),
     ));
-  }
-
-  // Página inicial
-  MaterialPage _buildInitialPage(String route) {
-    return MaterialPage(
-      key: ValueKey('$route-${DateTime.now().millisecondsSinceEpoch}'),
-      child: _injector.resolveRoute(route)?.call(_injector) ??
-          const SizedBox.shrink(),
-    );
   }
 
   // Página de erro/escape para rotas não encontradas
