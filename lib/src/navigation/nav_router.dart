@@ -47,12 +47,15 @@ class NavRouter extends RouterDelegate<RouteInformation>
     }
   }
 
-  // Adiciona uma página na pilha de navegação
   void _addPage(String route, Widget Function(NavInjector) pageBuilder) {
-    _pages.add(MaterialPage(
-      key: ValueKey(route),
-      child: pageBuilder(_injector),
-    ));
+    // Certifique-se de que cada página tenha uma chave única e que a página não seja duplicada
+    final pageKey = ValueKey(route);
+    if (!_pages.any((page) => page.key == pageKey)) {
+      _pages.add(MaterialPage(
+        key: pageKey, // Usando uma chave única para cada rota
+        child: pageBuilder(_injector),
+      ));
+    }
   }
 
   // Página de Escape para quando a rota não for encontrada
