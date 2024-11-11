@@ -43,22 +43,43 @@ class NavRouter extends RouterDelegate<RouteInformation>
   }
 
   Future<void> to(String route) async {
-    final pageBuilder = _injector.resolveRoute(route);
+    // Verifica se a rota é a página inicial
+    if (route == '/') {
+      final isInitialPagePresent =
+          _pages.isNotEmpty && (_pages.first.key as ValueKey).value == '/';
 
-    if (pageBuilder != null) {
-      _addPage(route, pageBuilder);
-      // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-        _printPages();
-      });
+      // Se a página inicial não está presente, reinicia a lista de páginas
+      if (!isInitialPagePresent) {
+        _pages.clear(); // Limpa a lista de páginas
+        _pages.add(_buildInitialPage('/')); // Adiciona a página inicial
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners();
+          _printPages();
+        });
+      } else {
+        // Se já está na página inicial, não faz nada
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners(); // Pode ser necessário dependendo do seu fluxo
+        });
+      }
     } else {
-      print('Rota não encontrada: $route');
-      _addPage('escape', () => _buildEscapePage().child);
-      // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-      });
+      // Caso contrário, navega para outra rota
+      final pageBuilder = _injector.resolveRoute(route);
+      if (pageBuilder != null) {
+        _addPage(route, pageBuilder);
+        // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners();
+          _printPages();
+        });
+      } else {
+        print('Rota não encontrada: $route');
+        _addPage('escape', () => _buildEscapePage().child);
+        // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          notifyListeners();
+        });
+      }
     }
   }
 
