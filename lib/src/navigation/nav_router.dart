@@ -48,13 +48,18 @@ class NavRouter extends RouterDelegate<RouteInformation>
   }
 
   void _addPage(String route, Widget Function(NavInjector) pageBuilder) {
-    // Certifique-se de que cada página tenha uma chave única e que a página não seja duplicada
-    final pageKey = ValueKey(route);
-    if (!_pages.any((page) => page.key == pageKey)) {
+    // Gerando uma chave dinâmica para a página
+    final dynamicKey =
+        ValueKey('$route-${DateTime.now().millisecondsSinceEpoch}');
+
+    // Evita adicionar páginas duplicadas à pilha, com chave dinâmica
+    if (!_pages.any((page) => page.key == dynamicKey)) {
       _pages.add(MaterialPage(
-        key: pageKey, // Usando uma chave única para cada rota
+        key: dynamicKey, // Usando a chave dinâmica
         child: pageBuilder(_injector),
       ));
+    } else {
+      print("Página já existe na pilha: $route");
     }
   }
 
