@@ -74,8 +74,13 @@ class NavRouter extends RouterDelegate<RouteInformation>
   }
 
   void _addPage(String route, Widget Function() pageBuilder) {
+    final key = route == '/'
+        ? ValueKey(
+            '$route-${DateTime.now().millisecondsSinceEpoch}') // Gera uma nova key para a rota inicial
+        : ValueKey(route);
+
     _pages.add(MaterialPage(
-      key: ValueKey(route),
+      key: key,
       child: pageBuilder(),
     ));
   }
