@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 abstract class NavRoutesConfig {
-  final Map<String, Widget Function()> _routes = {};
+  static final Map<String, Widget Function()> _routes = {};
 
-  void injectRoutes();
+  void defineRoutes();
 
   void registerRoute(String route, Widget Function() pageBuilder) {
     if (!_routes.containsKey(route)) {
@@ -11,7 +11,11 @@ abstract class NavRoutesConfig {
     }
   }
 
-  Map<String, Widget Function()> getAllRoutes() {
-    return _routes;
+  Map<String, Widget Function(BuildContext)> getAllRoutes() {
+    return Map.fromEntries(
+      _routes.entries.map(
+        (entry) => MapEntry(entry.key, (context) => entry.value()),
+      ),
+    );
   }
 }
