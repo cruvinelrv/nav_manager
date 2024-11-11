@@ -1,7 +1,17 @@
 import 'package:flutter/material.dart';
 
 abstract class NavRoutesConfig {
-  void registerRoute(String route, Widget Function() pageBuilder);
+  final Map<String, Widget Function()> _routes = {};
 
-  Map<String, Widget Function()> getAllRoutes();
+  void injectRoutes();
+
+  void registerRoute(String route, Widget Function() pageBuilder) {
+    if (!_routes.containsKey(route)) {
+      _routes[route] = pageBuilder;
+    }
+  }
+
+  Map<String, Widget Function()> getAllRoutes() {
+    return _routes;
+  }
 }
