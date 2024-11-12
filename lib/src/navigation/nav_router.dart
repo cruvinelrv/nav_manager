@@ -131,7 +131,10 @@ class NavRouter extends RouterDelegate<RouteInformation>
     final routes = _injector.getRoutes();
     for (var route in routes) {
       if (route != '/') {
-        _addPage(route, _injector.resolveRoute(route)!);
+        final pageBuilder = _injector.resolveRoute(route);
+        if (pageBuilder != null) {
+          _addPage(route, pageBuilder);
+        }
       }
     }
   }
