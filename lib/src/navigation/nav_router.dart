@@ -5,7 +5,8 @@ class NavRouter extends RouterDelegate<RouteInformation>
     with ChangeNotifier, PopNavigatorRouterDelegateMixin<RouteInformation> {
   final NavInjector _injector;
   final Widget Function()? escapePageBuilder;
-  List<Page> _pages = [];
+  final List<Page> _pages = [];
+  final Map<String, ValueKey> _routeKeys = {};
 
   @override
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -15,18 +16,14 @@ class NavRouter extends RouterDelegate<RouteInformation>
   }
 
   @override
-  List<Page> get pages {
-    // Log para mostrar as chaves das páginas
-    for (var page in _pages) {
-      print('Página: ${page.key}');
-    }
-    return List.of(_pages);
+  List<Page> get pages => List.unmodifiable(_pages);
+
+  ValueKey _getKeyForRoute(String route) {
+    return _routeKeys.putIfAbsent(route, () => ValueKey(route));
   }
 
   @override
   Widget build(BuildContext context) {
-    // Log para mostrar a chave do Navigator
-    print('Chave do Navigator: ${navigatorKey}');
     return Navigator(
       key: navigatorKey,
       pages: _pages,
@@ -38,6 +35,8 @@ class NavRouter extends RouterDelegate<RouteInformation>
 
   void _initializeRoutes() {
     final routes = _injector.getRoutes();
+    _pages.clear();
+
     for (var route in routes) {
       final pageBuilder = _injector.resolveRoute(route);
       if (pageBuilder != null) {
@@ -51,46 +50,46 @@ class NavRouter extends RouterDelegate<RouteInformation>
   }
 
   void _addPage(String route, Widget Function(NavInjector) pageBuilder) {
-    final pageKey = ValueKey('$route-${DateTime.now().millisecondsSinceEpoch}');
+    final pageKey = _getKeyForRoute(route);
+
     if (!_pages.any((page) => page.key == pageKey)) {
-      _pages.add(MaterialPage(
-        key: pageKey,
-        child: pageBuilder(_injector),
-      ));
-      // Log para mostrar a chave da página adicionada
-      print('Página adicionada: ${pageKey}');
+      _pages.add(
+        MaterialPage(
+          key: pageKey,
+          name: route,
+          child: pageBuilder(_injector),
+        ),
+      );
     }
   }
 
   void _addEscapePage() {
-    _pages.add(MaterialPage(
-      key: const ValueKey('escape'),
-      child: escapePageBuilder != null
-          ? escapePageBuilder!()
-          : Scaffold(
+    final pageKey = _getKeyForRoute('escape');
+    _pages.add(
+      MaterialPage(
+        key: pageKey,
+        name: 'escape',
+        child: escapePageBuilder?.call() ??
+            Scaffold(
               appBar: AppBar(title: const Text('Página não encontrada')),
               body: const Center(
-                  child: Text('A rota solicitada não foi encontrada.')),
+                child: Text('A rota solicitada não foi encontrada.'),
+              ),
             ),
-    ));
-    print('Página de escape adicionada com chave: escape');
+      ),
+    );
   }
 
   Future<void> to(String route) async {
     final pageBuilder = _injector.resolveRoute(route);
 
     if (pageBuilder != null) {
-      if (!_pages.any((page) => page.key == ValueKey(route))) {
-        _addPage(route, pageBuilder);
-      }
-    } else {
-      print('Rota não encontrada: $route');
-      _addEscapePage();
-    }
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _addPage(route, pageBuilder);
       notifyListeners();
-    });
+    } else {
+      _addEscapePage();
+      notifyListeners();
+    }
   }
 
   @override
@@ -98,21 +97,24 @@ class NavRouter extends RouterDelegate<RouteInformation>
     final route = configuration.uri.path.isEmpty ? '/' : configuration.uri.path;
     final pageBuilder = _injector.resolveRoute(route);
 
+    _pages.clear();
+
     if (pageBuilder != null) {
-      _pages = [
-        MaterialPage(
-          key: ValueKey(route),
-          child: pageBuilder(_injector),
-        ),
-      ];
-      print('Nova rota definida: $route com chave ${ValueKey(route)}');
+      _addPage(route, pageBuilder);
     } else {
       _addEscapePage();
-      _pages = List.of(_pages);
     }
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    notifyListeners();
+  }
+
+  @override
+  Future<bool> popRoute() async {
+    if (_pages.length > 1) {
+      _pages.removeLast();
       notifyListeners();
-    });
+      return true;
+    }
+    return false;
   }
 }
