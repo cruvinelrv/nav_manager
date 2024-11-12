@@ -55,6 +55,15 @@ class NavRouter extends RouterDelegate<RouteInformation>
     if (existingPageIndex != -1) {
       // Navega para a página existente
       _pages = _pages.sublist(0, existingPageIndex + 1);
+    } else {
+      // Adiciona uma nova página
+      final pageBuilder = _injector.resolveRoute(route);
+      if (pageBuilder != null) {
+        _pages.add(MaterialPage(
+          key: ValueKey(route), // Usa a rota como chave
+          child: pageBuilder(),
+        ));
+      }
     }
   }
 
@@ -62,15 +71,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
   Future<void> setNewRoutePath(RouteInformation configuration) async {
     final route = configuration.uri.path.isEmpty ? '/' : configuration.uri.path;
     print('\n🔄 Definindo nova rota: $route');
-    final pageBuilder = _injector.resolveRoute(route);
-
-    if (pageBuilder != null) {
-      print('✅ Rota encontrada, navegando para a página');
-      _navigateToPage(route);
-    } else {
-      print('❌ Rota não encontrada, navegando para a página de escape');
-      _navigateToPage('escape');
-    }
+    _navigateToPage(route);
 
     notifyListeners(); // Notifica imediatamente após definir a nova rota
     _printPages();
@@ -108,10 +109,17 @@ class NavRouter extends RouterDelegate<RouteInformation>
   // Injeta as novas rotas a partir do AppModule
   void _injectRoutesFromModule() {
     final routes = _injector.getRoutes();
+    print('\n🔄 Rotas injetadas:');
     for (var route in routes) {
+      print('🔄 Rota: $route');
+    }
+
+    for (var route in routes) {
+      print('🔄 Processando rota: $route');
       if (route != '/') {
         final pageBuilder = _injector.resolveRoute(route);
         if (pageBuilder != null) {
+          print('✅ Injetando rota: $route');
           _pages.add(MaterialPage(
             key: ValueKey(route),
             child: pageBuilder(),
