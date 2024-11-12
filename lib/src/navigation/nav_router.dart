@@ -8,14 +8,12 @@ class NavRouter extends RouterDelegate<RouteInformation>
   @override
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
   late List<Page> _pages;
-  int _pageKeyCounter = 0; // Contador para gerar chaves únicas
 
   NavRouter(this._injector) {
     _pages = [];
 
-    _initializeRoutes(); // Inicializa as rotas
+    _initializeRoutes();
 
-    // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _printPages();
     });
@@ -29,7 +27,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
     return Navigator(
       key: navigatorKey,
       pages: _pages,
-      onDidRemovePage: (result) {
+      onDidRemovePage: (route) {
         print('🗑️ Página removida');
         popRoute();
       },
@@ -68,9 +66,12 @@ class NavRouter extends RouterDelegate<RouteInformation>
   }
 
   void _addPage(String route, Widget Function() pageBuilder) {
+    // Verifica se a rota já está presente na lista de páginas
+    if (_pages.any((page) => (page.key as ValueKey).value == route)) {
+      return;
+    }
     _pages.add(MaterialPage(
-      key: ValueKey(
-          '$route-${_pageKeyCounter++}'), // Gera uma chave única para cada página
+      key: ValueKey(route), // Usa a rota como chave
       child: pageBuilder(),
     ));
   }
@@ -95,12 +96,12 @@ class NavRouter extends RouterDelegate<RouteInformation>
 
   // Inicializa as rotas
   void _initializeRoutes() {
-    final initialRoute = '/'; // Define a rota inicial
+    const initialRoute = '/'; // Define a rota inicial
     final initialPageBuilder = _injector.resolveRoute(initialRoute);
 
     if (initialPageBuilder != null) {
       _pages.add(MaterialPage(
-        key: ValueKey('$initialRoute-${_pageKeyCounter++}'),
+        key: const ValueKey(initialRoute),
         child: initialPageBuilder(),
       ));
     } else {
