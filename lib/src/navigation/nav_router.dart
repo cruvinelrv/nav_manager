@@ -118,23 +118,23 @@ class NavRouter extends RouterDelegate<RouteInformation>
 
   @override
   Future<void> setNewRoutePath(RouteInformation configuration) async {
-    final route = configuration.uri.path.isEmpty ? '/' : configuration.uri.path;
-    print('\n🔄 Definindo nova rota: $route');
-    final pageBuilder = _injector.resolveRoute(route);
+    // final route = configuration.uri.path.isEmpty ? '/' : configuration.uri.path;
+    // print('\n🔄 Definindo nova rota: $route');
+    // final pageBuilder = _injector.resolveRoute(route);
 
-    print('🗑️ Limpando páginas existentes');
-    _pages.clear();
+    // print('🗑️ Limpando páginas existentes');
+    // _pages.clear();
 
-    if (pageBuilder != null) {
-      print('✅ Rota encontrada, adicionando página');
-      _addPage(route, pageBuilder);
-    } else {
-      print('❌ Rota não encontrada, adicionando página de escape');
-      _addEscapePage();
-    }
+    // if (pageBuilder != null) {
+    //   print('✅ Rota encontrada, adicionando página');
+    //   _addPage(route, pageBuilder);
+    // } else {
+    //   print('❌ Rota não encontrada, adicionando página de escape');
+    //   _addEscapePage();
+    // }
 
-    print('🔔 Notificando listeners');
-    notifyListeners();
+    // print('🔔 Notificando listeners');
+    // notifyListeners();
   }
 
   @override

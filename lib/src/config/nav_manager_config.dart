@@ -30,10 +30,14 @@ class NavManagerConfig {
 
     // Configurar módulos remotos se for multirepo
     if (isMultRepo) {
-      for (var entry in remoteModules.entries) {
-        print('Verificando módulo remoto: ${entry.key} de ${entry.value}');
+      for (var module in remoteModules.values) {
+        module.registerDependencies(navInjector);
+        module.registerRoutes(navInjector);
       }
     }
+
+    // Registrar rotas adicionais
+    configureRoutes();
   }
 
   void configureRoutes() {
