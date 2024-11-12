@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
-  <meta name="description" content="API docs for the addOne method from the Calculator class, for the Dart programming language.">
-  <title>addOne method - Calculator class - nav_manager library - Dart API</title>
+  <meta name="description" content="API docs for the to method from the NavRouter class, for the Dart programming language.">
+  <title>to method - NavRouter class - nav_manager library - Dart API</title>
 
 
   
@@ -30,10 +30,10 @@
   <ol class="breadcrumbs gt-separated dark hidden-xs">
     <li><a href="../../index.html">nav_manager</a></li>
     <li><a href="../../nav_manager/nav_manager-library.html">nav_manager.dart</a></li>
-    <li><a href="../../nav_manager/Calculator-class.html">Calculator</a></li>
-    <li class="self-crumb">addOne method</li>
+    <li><a href="../../nav_manager/NavRouter-class.html">NavRouter</a></li>
+    <li class="self-crumb">to method</li>
   </ol>
-  <div class="self-name">addOne</div>
+  <div class="self-name">to</div>
   <form class="search navbar-right" role="search">
     <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
   </form>
@@ -54,32 +54,42 @@
 <div
     id="dartdoc-main-content"
     class="main-content"
-    data-above-sidebar="nav_manager&#47;Calculator-class-sidebar.html"
+    data-above-sidebar="nav_manager&#47;NavRouter-class-sidebar.html"
     data-below-sidebar="">
     <div>
-<h1><span class="kind-method">addOne</span> method 
+<h1><span class="kind-method">to</span> method 
 </h1></div>
 
     <section class="multi-line-signature">
       
 
-<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
-<span class="name ">addOne</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="addOne-param-value"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">value</span></span></li>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+<span class="name ">to</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="to-param-route"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">route</span></span></li>
 </ol>)
 
       
 
     </section>
     
-<section class="desc markdown">
-  <p>Returns <code>value</code> plus 1.</p>
-</section>
 
 
     
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
-  <pre class="language-dart"><code class="language-dart">int addOne(int value) =&gt; value + 1;</code></pre>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; to(String route) async {
+  _recoverRoutes();
+  final pageBuilder = _injector.resolveRoute(route);
+
+  if (pageBuilder != null) {
+    _navigateToPage(route);
+    notifyListeners();
+    _printPages();
+  } else {
+    print(&#39;Rota não encontrada: $route&#39;);
+    _navigateToPage(&#39;escape&#39;);
+    notifyListeners();
+  }
+}</code></pre>
 </section>
 
 
@@ -96,12 +106,12 @@
 <ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
     <li><a href="../../index.html">nav_manager</a></li>
     <li><a href="../../nav_manager/nav_manager-library.html">nav_manager</a></li>
-    <li><a href="../../nav_manager/Calculator-class.html">Calculator</a></li>
-    <li class="self-crumb">addOne method</li>
+    <li><a href="../../nav_manager/NavRouter-class.html">NavRouter</a></li>
+    <li class="self-crumb">to method</li>
 </ol>
 
 
-    <h5>Calculator class</h5>
+    <h5>NavRouter class</h5>
     <div id="dartdoc-sidebar-left-content"></div>
   </div><!--/.sidebar-offcanvas-->
 
