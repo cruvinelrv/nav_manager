@@ -29,7 +29,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
       pages: _pages,
       onDidRemovePage: (route) {
         print('🗑️ Página removida');
-        popRoute();
+        // Não remove a página da lista
       },
     );
   }
@@ -39,29 +39,12 @@ class NavRouter extends RouterDelegate<RouteInformation>
 
     if (pageBuilder != null) {
       _navigateToPage(route, pageBuilder);
-      // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-        _printPages();
-      });
+      notifyListeners(); // Notifica imediatamente após adicionar a página
+      _printPages();
     } else {
       print('Rota não encontrada: $route');
       _navigateToPage('escape', () => _buildEscapePage().child);
-      // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-      });
-    }
-  }
-
-  void pop() {
-    if (_pages.isNotEmpty) {
-      _pages.removeLast();
-      // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        notifyListeners();
-        _printPages();
-      });
+      notifyListeners(); // Notifica imediatamente após adicionar a página de escape
     }
   }
 
@@ -95,8 +78,8 @@ class NavRouter extends RouterDelegate<RouteInformation>
       _navigateToPage('escape', () => _buildEscapePage().child);
     }
 
-    print('🔔 Notificando listeners');
-    notifyListeners();
+    notifyListeners(); // Notifica imediatamente após definir a nova rota
+    _printPages();
   }
 
   // Inicializa as rotas
