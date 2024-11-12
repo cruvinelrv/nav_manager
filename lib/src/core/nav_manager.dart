@@ -9,7 +9,7 @@ abstract class NavModule {
 class NavManager extends StatefulWidget {
   final NavModule module;
   final Widget child;
-  final Widget Function()? escapePageBuilder;
+  final Widget Function()? escapePageBuilder; // Nov
 
   const NavManager({
     super.key,
@@ -20,22 +20,6 @@ class NavManager extends StatefulWidget {
 
   @override
   State<NavManager> createState() => _NavManagerState();
-
-  static NavRouter? _navRouter;
-
-  static NavRouter get router {
-    if (_navRouter == null) {
-      throw Exception('NavRouter has not been initialized.');
-    }
-    return _navRouter!;
-  }
-
-  static Future<void> navigateTo(String route) async {
-    if (_navRouter == null) {
-      throw Exception('NavRouter has not been initialized.');
-    }
-    await _navRouter!.to(route);
-  }
 }
 
 class _NavManagerState extends State<NavManager> {
@@ -46,7 +30,6 @@ class _NavManagerState extends State<NavManager> {
     super.initState();
     _injector = NavInjector();
     _initializeModule(widget.module);
-    NavManager._navRouter = NavRouter(_injector);
   }
 
   void _initializeModule(NavModule module) {
@@ -56,7 +39,7 @@ class _NavManagerState extends State<NavManager> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerDelegate: NavManager._navRouter!,
+      routerDelegate: NavRouter(_injector),
       routeInformationParser: NavRouteInformationParser(),
     );
   }
