@@ -7,7 +7,7 @@ class NavManagerConfig {
   final bool isMultRepo;
   final Map<String, NavModule> localModules;
   final Map<String, NavModule> remoteModules;
-  final Map<String, Widget Function(NavInjector)> routes;
+  final Map<String, Widget Function()> routes;
   final DependencyScopeEnum dependencyScope;
   final NavInjector navInjector;
 

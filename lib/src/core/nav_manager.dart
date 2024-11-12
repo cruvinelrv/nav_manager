@@ -39,8 +39,7 @@ class _NavManagerState extends State<NavManager> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerDelegate:
-          NavRouter(_injector, escapePageBuilder: widget.escapePageBuilder),
+      routerDelegate: NavRouter(_injector),
       routeInformationParser: NavRouteInformationParser(),
     );
   }
