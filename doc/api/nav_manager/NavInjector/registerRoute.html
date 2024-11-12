@@ -78,7 +78,7 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">void registerRoute(String path, Widget Function() builder) {
-  print(&#39;📝 Registrando rota no NavInjector: $path&#39;);
+  debugPrint(&#39;📝 Registering route in NavInjector: $path&#39;);
   _routes[path] = builder;
 }</code></pre>
 </section>

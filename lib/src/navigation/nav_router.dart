@@ -31,7 +31,6 @@ class NavRouter extends RouterDelegate<RouteInformation>
     await instance.to(route);
   }
 
-  @override
   List<Page> get pages => List.of(_pages);
 
   @override
@@ -86,12 +85,12 @@ class NavRouter extends RouterDelegate<RouteInformation>
   }
 
   void _initializeRoutes() {
-    final initialRoute = '/';
+    const initialRoute = '/';
     final initialPageBuilder = _injector.resolveRoute(initialRoute);
 
     if (initialPageBuilder != null) {
       _pages.add(MaterialPage(
-        key: ValueKey(initialRoute),
+        key: const ValueKey(initialRoute),
         child: initialPageBuilder(),
       ));
     } else {
@@ -149,7 +148,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
   }
 
   void _printPages() {
-    print('Current routes in the navigation stack:');
+    debugPrint('Current routes in the navigation stack:');
     for (var page in _pages) {
       debugPrint((page.key as ValueKey).value);
     }

@@ -61,13 +61,138 @@
 <li><strong>Easy Configuration</strong>: Provides simple configuration with the <code>NavManagerConfig</code> class to integrate your modules and dependencies.</li>
 </ul>
 <h2 id="getting-started">Getting Started</h2>
-<h3 id="prerequisites">Prerequisites</h3>
-<p>To use the NavManager package in your Flutter project, you need to have the latest version of Dart and Flutter installed.</p>
-<ol>
-<li>Add the <code>nav_manager</code> package to your <code>pubspec.yaml</code> file:</li>
-</ol>
-<pre class="language-yaml"><code class="language-yaml">dependencies:
-  nav_manager: ^0.1.0
+<h2 id="maindart">main.dart</h2>
+<p>Adicione o seguinte trecho de código ao seu projeto para inicializar a navegação:</p>
+<pre class="language-dart"><code class="language-dart">
+void main() async {
+  final navManagerConfig = ApplicationConfig.configureNavManager();
+
+  runApp(AppWidget(navManagerConfig: navManagerConfig));
+}
+
+## Configuração do NavManager
+
+Abaixo está um exemplo de como configurar o `NavManager` em seu projeto:
+
+```dart
+
+class ApplicationConfig {
+  static NavManagerConfig configureNavManager() {
+    WidgetsFlutterBinding.ensureInitialized();
+    final routes = Routes();
+    routes.defineRoutes();
+    final navInjector = NavInjector();
+
+    final navManagerConfig = NavManagerConfig(
+      navInjector: navInjector,
+      routes: routes.getAllRoutes(),
+      dependencyScope: DependencyScopeEnum.singleton,
+      isMultRepo: false,
+    );
+    navManagerConfig.configureRoutes();
+
+    return navManagerConfig;
+  }
+}
+
+## Definição de Rotas
+
+Abaixo está um exemplo de como definir rotas usando a classe `Routes`:
+
+```dart
+class Routes extends NavRoutesConfig {
+  final Map&lt;String, Widget Function()&gt; _routes = {};
+  
+  @override
+  void defineRoutes() {
+    registerRoute('/', () {
+      return const FirstPage();
+    });
+    registerRoute('/first', () {
+      return const FirstPage();
+    });
+    registerRoute('/second', () {
+      return const SecondPage();
+    });
+    registerRoute('/details', () {
+      return const DetailsPage();
+    });
+  }
+
+  @override
+  Map&lt;String, Widget Function()&gt; get routes =&gt; _routes;
+}
+
+## Estrutura do AppWidget
+
+Veja abaixo como a classe `AppWidget` é implementada para usar a configuração do `NavManager`:
+
+```dart
+class AppWidget extends StatelessWidget {
+  final NavManagerConfig navManagerConfig;
+  const AppWidget({super.key, required this.navManagerConfig});
+
+  @override
+  Widget build(BuildContext context) {
+    navManagerConfig.navInjector.printRegisteredRoutes();
+    return MaterialApp.router(
+      routeInformationParser: NavRouteInformationParser(),
+      routerDelegate: NavRouter((navManagerConfig.navInjector)),
+      title: 'App Title',
+      theme: ThemeData(primarySwatch: Colors.blue),
+    );
+  }
+}
+
+## Exemplo de Implementação de uma Página
+
+Abaixo está a implementação de uma página de exemplo chamada `FirstPage`:
+
+```dart
+class FirstPage extends StatefulWidget {
+  const FirstPage({super.key});
+
+  @override
+  State&lt;FirstPage&gt; createState() =&gt; _FirstPageState();
+}
+
+class _FirstPageState extends State&lt;FirstPage&gt; {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('First Page')),
+      body: Center(
+        child: Column(
+          children: [
+            ElevatedButton(
+              onPressed: () {
+                NavRouter.navigateTo('/second');
+              },
+              child: const Text('Go to Second Page'),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                NavRouter.navigateTo('/details');
+              },
+              child: const Text('Go to Details Page'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+### Prerequisites
+
+To use the NavManager package in your Flutter project, you need to have the latest version of Dart and Flutter installed.
+
+1. Add the `nav_manager` package to your `pubspec.yaml` file:
+
+```yaml
+dependencies:
+  nav_manager: ^0.0.1
 </code></pre>
 </section>
 

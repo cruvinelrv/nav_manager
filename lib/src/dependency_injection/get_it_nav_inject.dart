@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class GetItNavInject {
@@ -7,7 +8,7 @@ class GetItNavInject {
     if (!_getIt.isRegistered<T>()) {
       _getIt.registerSingleton<T>(instance);
     } else {
-      print('Dependency of type $T is already registered as Singleton');
+      debugPrint('Dependency of type $T is already registered as Singleton');
     }
   }
 
@@ -16,7 +17,8 @@ class GetItNavInject {
     if (!_getIt.isRegistered<T>()) {
       _getIt.registerLazySingleton<T>(factoryFunc);
     } else {
-      print('Dependency of type $T is already registered as Lazy Singleton');
+      debugPrint(
+          'Dependency of type $T is already registered as Lazy Singleton');
     }
   }
 
@@ -24,7 +26,7 @@ class GetItNavInject {
     if (!_getIt.isRegistered<T>()) {
       _getIt.registerFactory<T>(factoryFunc);
     } else {
-      print('Dependency of type $T is already registered as Factory');
+      debugPrint('Dependency of type $T is already registered as Factory');
     }
   }
 

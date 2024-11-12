@@ -77,12 +77,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">Widget Function()? resolveRoute(String path) {
-  print(&#39;🔍 Resolvendo rota: $path&#39;);
   final builder = _routes[path];
   if (builder != null) {
-    print(&#39;✅ Builder encontrado para: $path&#39;);
+    debugPrint(&#39;✅ Route found: $path&#39;);
   } else {
-    print(&#39;❌ Builder não encontrado para: $path&#39;);
+    debugPrint(&#39;❌ Route not found: $path&#39;);
   }
   return builder;
 }</code></pre>

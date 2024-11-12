@@ -85,7 +85,7 @@
     notifyListeners();
     _printPages();
   } else {
-    print(&#39;Rota não encontrada: $route&#39;);
+    debugPrint(&#39;Route not found: $route&#39;);
     _navigateToPage(&#39;escape&#39;);
     notifyListeners();
   }

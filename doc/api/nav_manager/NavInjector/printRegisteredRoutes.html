@@ -76,11 +76,11 @@
 <section class="summary source-code" id="source">
   <h2><span>Implementation</span></h2>
   <pre class="language-dart"><code class="language-dart">void printRegisteredRoutes() {
-  print(&#39;\n📊 Rotas registradas no NavInjector:&#39;);
+  debugPrint(&#39;\n📊 Routes registered in NavInjector:&#39;);
   for (var route in _routes.keys) {
-    print(&#39;  - $route&#39;);
+    debugPrint(&#39;  - $route&#39;);
   }
-  print(&#39;&#39;);
+  debugPrint(&#39;&#39;);
 }</code></pre>
 </section>
 

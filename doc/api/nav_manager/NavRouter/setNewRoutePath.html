@@ -92,7 +92,7 @@ microtask to schedule a build.</p>
 Future&lt;void&gt; setNewRoutePath(RouteInformation configuration) async {
   _recoverRoutes();
   final route = configuration.uri.path.isEmpty ? &#39;&#47;&#39; : configuration.uri.path;
-  print(&#39;\n🔄 Definindo nova rota: $route&#39;);
+  debugPrint(&#39;\n🔄 Defining new route: $route&#39;);
   _navigateToPage(route);
 
   notifyListeners();
