@@ -5,11 +5,10 @@ abstract class NavModule {
   void configure(NavInjector injector);
 }
 
-/// Widget principal para inicializar a navegação.
 class NavManager extends StatefulWidget {
   final NavModule module;
   final Widget child;
-  final Widget Function()? escapePageBuilder; // Nov
+  final Widget Function()? escapePageBuilder;
 
   const NavManager({
     super.key,

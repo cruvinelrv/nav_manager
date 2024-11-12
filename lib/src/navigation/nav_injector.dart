@@ -24,7 +24,6 @@ class NavInjector {
     return builder;
   }
 
-  // Método para debug
   void printRegisteredRoutes() {
     print('\n📊 Rotas registradas no NavInjector:');
     for (var route in _routes.keys) {

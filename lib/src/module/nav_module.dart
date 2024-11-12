@@ -1,6 +1,4 @@
-// lib/src/navigation/module.dart
-
-import '../navigation/nav_injector.dart';
+import 'package:nav_manager/nav_manager.dart';
 
 abstract class NavModule {
   void registerDependencies(NavInjector injector);
@@ -9,28 +7,16 @@ abstract class NavModule {
 
 class LocalModule implements NavModule {
   @override
-  void registerDependencies(NavInjector injector) {
-    // Registrar dependências locais
-    // injector.register('someKey', someDependency());
-  }
+  void registerDependencies(NavInjector injector) {}
 
   @override
-  void registerRoutes(NavInjector injector) {
-    // Registrar rotas locais
-    // injector.registerRoute('/local', () => LocalPage());
-  }
+  void registerRoutes(NavInjector injector) {}
 }
 
 class RemoteModule implements NavModule {
   @override
-  void registerDependencies(NavInjector injector) {
-    // Registrar dependências remotas
-    // injector.register('someRemoteService', someRemoteService());
-  }
+  void registerDependencies(NavInjector injector) {}
 
   @override
-  void registerRoutes(NavInjector injector) {
-    // Registrar rotas remotas
-    // injector.registerRoute('/remote', () => RemotePage());
-  }
+  void registerRoutes(NavInjector injector) {}
 }

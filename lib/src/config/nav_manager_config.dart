@@ -20,15 +20,12 @@ class NavManagerConfig {
     required this.navInjector,
   });
 
-  /// Método para configurar e registrar módulos.
   void configureModules() {
-    // Configurar módulos locais
     for (var module in localModules.values) {
       module.registerDependencies(navInjector);
       module.registerRoutes(navInjector);
     }
 
-    // Configurar módulos remotos se for multirepo
     if (isMultRepo) {
       for (var module in remoteModules.values) {
         module.registerDependencies(navInjector);
@@ -36,7 +33,6 @@ class NavManagerConfig {
       }
     }
 
-    // Registrar rotas adicionais
     configureRoutes();
   }
 
@@ -47,7 +43,6 @@ class NavManagerConfig {
     }
   }
 
-  /// Método de fábrica para criar uma configuração padrão.
   static NavManagerConfig createDefaultConfig({
     required NavInjector navInjector,
   }) {
