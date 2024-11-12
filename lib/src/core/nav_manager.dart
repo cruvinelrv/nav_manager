@@ -21,12 +21,20 @@ class NavManager extends StatefulWidget {
   @override
   State<NavManager> createState() => _NavManagerState();
 
-  static late NavRouter _navRouter;
+  static NavRouter? _navRouter;
 
-  static NavRouter get router => _navRouter;
+  static NavRouter get router {
+    if (_navRouter == null) {
+      throw Exception('NavRouter has not been initialized.');
+    }
+    return _navRouter!;
+  }
 
   static Future<void> navigateTo(String route) async {
-    await _navRouter.to(route);
+    if (_navRouter == null) {
+      throw Exception('NavRouter has not been initialized.');
+    }
+    await _navRouter!.to(route);
   }
 }
 
@@ -48,7 +56,7 @@ class _NavManagerState extends State<NavManager> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      routerDelegate: NavManager._navRouter,
+      routerDelegate: NavManager._navRouter!,
       routeInformationParser: NavRouteInformationParser(),
     );
   }
