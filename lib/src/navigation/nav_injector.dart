@@ -4,31 +4,30 @@ class NavInjector {
   final Map<String, Widget Function()> _routes = {};
 
   void registerRoute(String path, Widget Function() builder) {
-    print('📝 Registrando rota no NavInjector: $path');
+    debugPrint('📝 Registering route in NavInjector: $path');
     _routes[path] = builder;
   }
 
   List<String> getRoutes() {
-    print('📋 Obtendo lista de rotas: ${_routes.keys.toList()}');
+    debugPrint('📋 Getting list of routes: ${_routes.keys.toList()}');
     return _routes.keys.toList();
   }
 
   Widget Function()? resolveRoute(String path) {
-    print('🔍 Resolvendo rota: $path');
     final builder = _routes[path];
     if (builder != null) {
-      print('✅ Builder encontrado para: $path');
+      debugPrint('✅ Route found: $path');
     } else {
-      print('❌ Builder não encontrado para: $path');
+      debugPrint('❌ Route not found: $path');
     }
     return builder;
   }
 
   void printRegisteredRoutes() {
-    print('\n📊 Rotas registradas no NavInjector:');
+    debugPrint('\n📊 Routes registered in NavInjector:');
     for (var route in _routes.keys) {
-      print('  - $route');
+      debugPrint('  - $route');
     }
-    print('');
+    debugPrint('');
   }
 }

@@ -52,7 +52,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
       notifyListeners();
       _printPages();
     } else {
-      print('Rota não encontrada: $route');
+      debugPrint('Route not found: $route');
       _navigateToPage('escape');
       notifyListeners();
     }
@@ -78,7 +78,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
   Future<void> setNewRoutePath(RouteInformation configuration) async {
     _recoverRoutes();
     final route = configuration.uri.path.isEmpty ? '/' : configuration.uri.path;
-    print('\n🔄 Definindo nova rota: $route');
+    debugPrint('\n🔄 Defining new route: $route');
     _navigateToPage(route);
 
     notifyListeners();
@@ -105,22 +105,21 @@ class NavRouter extends RouterDelegate<RouteInformation>
     return MaterialPage(
       key: const ValueKey('escape'),
       child: Scaffold(
-        appBar: AppBar(title: const Text('Página não encontrada')),
-        body:
-            const Center(child: Text('A rota solicitada não foi encontrada.')),
+        appBar: AppBar(title: const Text('Page not found')),
+        body: const Center(child: Text('The requested route was not found.')),
       ),
     );
   }
 
   void _injectRoutesFromModule() {
     final routes = _injector.getRoutes();
-    print('📋 Rotas obtidas do NavInjector:');
+    debugPrint('📋 Routes obtained from NavInjector:');
     for (var route in routes) {
-      print('🔄 Processando rota: $route');
+      debugPrint('🔄 Processing route: $route');
       if (route != '/') {
         final pageBuilder = _injector.resolveRoute(route);
         if (pageBuilder != null) {
-          print('✅ Injetando rota: $route');
+          debugPrint('✅ Injecting route: $route');
           _pages.add(MaterialPage(
             key: ValueKey(route),
             child: pageBuilder(),
@@ -132,14 +131,14 @@ class NavRouter extends RouterDelegate<RouteInformation>
 
   void _recoverRoutes() {
     final routes = _injector.getRoutes();
-    print('📋 Recuperando rotas do NavInjector:');
+    debugPrint('📋 Recover routes of NavInjector:');
     for (var route in routes) {
-      print('🔄 Rota: $route');
+      debugPrint('🔄 Route: $route');
       if (route != '/' &&
           !_pages.any((page) => (page.key as ValueKey).value == route)) {
         final pageBuilder = _injector.resolveRoute(route);
         if (pageBuilder != null) {
-          print('✅ Injetando rota: $route');
+          debugPrint('✅ Injecting route: $route');
           _pages.add(MaterialPage(
             key: ValueKey(route),
             child: pageBuilder(),
@@ -150,9 +149,9 @@ class NavRouter extends RouterDelegate<RouteInformation>
   }
 
   void _printPages() {
-    print('Rotas atuais na pilha de navegação:');
+    print('Current routes in the navigation stack:');
     for (var page in _pages) {
-      print((page.key as ValueKey).value);
+      debugPrint((page.key as ValueKey).value);
     }
   }
 
