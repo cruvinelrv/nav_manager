@@ -38,7 +38,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
     final pageBuilder = _injector.resolveRoute(route);
 
     if (pageBuilder != null) {
-      _addPage(route, pageBuilder);
+      _navigateToPage(route, pageBuilder);
       // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
       WidgetsBinding.instance.addPostFrameCallback((_) {
         notifyListeners();
@@ -46,7 +46,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
       });
     } else {
       print('Rota não encontrada: $route');
-      _addPage('escape', () => _buildEscapePage().child);
+      _navigateToPage('escape', () => _buildEscapePage().child);
       // Usa addPostFrameCallback para evitar chamada de notifyListeners no ciclo de construção
       WidgetsBinding.instance.addPostFrameCallback((_) {
         notifyListeners();
@@ -65,15 +65,20 @@ class NavRouter extends RouterDelegate<RouteInformation>
     }
   }
 
-  void _addPage(String route, Widget Function() pageBuilder) {
+  void _navigateToPage(String route, Widget Function() pageBuilder) {
     // Verifica se a rota já está presente na lista de páginas
-    if (_pages.any((page) => (page.key as ValueKey).value == route)) {
-      return;
+    final existingPageIndex =
+        _pages.indexWhere((page) => (page.key as ValueKey).value == route);
+    if (existingPageIndex != -1) {
+      // Navega para a página existente
+      _pages = _pages.sublist(0, existingPageIndex + 1);
+    } else {
+      // Adiciona uma nova página
+      _pages.add(MaterialPage(
+        key: ValueKey(route), // Usa a rota como chave
+        child: pageBuilder(),
+      ));
     }
-    _pages.add(MaterialPage(
-      key: ValueKey(route), // Usa a rota como chave
-      child: pageBuilder(),
-    ));
   }
 
   @override
@@ -84,10 +89,10 @@ class NavRouter extends RouterDelegate<RouteInformation>
 
     if (pageBuilder != null) {
       print('✅ Rota encontrada, adicionando página');
-      _addPage(route, pageBuilder);
+      _navigateToPage(route, pageBuilder);
     } else {
       print('❌ Rota não encontrada, adicionando página de escape');
-      _addEscapePage();
+      _navigateToPage('escape', () => _buildEscapePage().child);
     }
 
     print('🔔 Notificando listeners');
@@ -96,16 +101,16 @@ class NavRouter extends RouterDelegate<RouteInformation>
 
   // Inicializa as rotas
   void _initializeRoutes() {
-    const initialRoute = '/'; // Define a rota inicial
+    final initialRoute = '/'; // Define a rota inicial
     final initialPageBuilder = _injector.resolveRoute(initialRoute);
 
     if (initialPageBuilder != null) {
       _pages.add(MaterialPage(
-        key: const ValueKey(initialRoute),
+        key: ValueKey(initialRoute),
         child: initialPageBuilder(),
       ));
     } else {
-      _addEscapePage();
+      _navigateToPage('escape', () => _buildEscapePage().child);
     }
 
     _injectRoutesFromModule(); // Injeta as novas rotas a partir do AppModule
@@ -123,10 +128,6 @@ class NavRouter extends RouterDelegate<RouteInformation>
     );
   }
 
-  void _addEscapePage() {
-    _pages.add(_buildEscapePage());
-  }
-
   // Injeta as novas rotas a partir do AppModule
   void _injectRoutesFromModule() {
     final routes = _injector.getRoutes();
@@ -134,7 +135,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
       if (route != '/') {
         final pageBuilder = _injector.resolveRoute(route);
         if (pageBuilder != null) {
-          _addPage(route, pageBuilder);
+          _navigateToPage(route, pageBuilder);
         }
       }
     }
