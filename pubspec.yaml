@@ -3,6 +3,9 @@ description: "Nav Manager is a package that helps you to manage your navigation 
 version: 0.0.1
 homepage: https://navmanager.inatos.com.br
 repository: https://github.com/cruvinelrv/nav_manager
+publish_to: https://vinicruvinel.inatos.com.br
+documentation: https://navmanager.inatos.com.br/docs
+license: GPL-3.0
 
 environment:
   sdk: ^3.5.4
