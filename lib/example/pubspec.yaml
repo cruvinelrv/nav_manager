@@ -1,0 +1,15 @@
+name: nav_manager_example
+description: Simple example for NavManager
+publish_to: 'none'
+
+environment:
+  sdk: '>=2.17.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  nav_manager:
+    path: ../..
+
+flutter:
+  uses-material-design: true

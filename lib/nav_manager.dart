@@ -7,5 +7,7 @@ export 'src/navigation/nav_injector.dart';
 export 'src/navigation/nav_router.dart';
 export 'src/navigation/nav_route_information_parser.dart';
 export 'src/module/nav_mapper_module.dart';
-export 'src/dependency_injection/dependency_injector.dart';
+export 'src/dependency_injection/nav_dependency_injector.dart';
+export 'src/dependency_injection/nav_dependency_injector_impl.dart';
+export 'src/dependency_injection/dependency_injector_factory.dart';
 export 'src/dependency_injection/dependency_scope_enum.dart';

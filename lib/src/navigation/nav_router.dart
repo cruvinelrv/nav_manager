@@ -58,8 +58,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
   }
 
   void _navigateToPage(String route) {
-    final existingPageIndex =
-        _pages.indexWhere((page) => (page.key as ValueKey).value == route);
+    final existingPageIndex = _pages.indexWhere((page) => (page.key as ValueKey).value == route);
     if (existingPageIndex != -1) {
       _pages = _pages.sublist(0, existingPageIndex + 1);
     } else {
@@ -133,8 +132,7 @@ class NavRouter extends RouterDelegate<RouteInformation>
     debugPrint('📋 Recover routes of NavInjector:');
     for (var route in routes) {
       debugPrint('🔄 Route: $route');
-      if (route != '/' &&
-          !_pages.any((page) => (page.key as ValueKey).value == route)) {
+      if (route != '/' && !_pages.any((page) => (page.key as ValueKey).value == route)) {
         final pageBuilder = _injector.resolveRoute(route);
         if (pageBuilder != null) {
           debugPrint('✅ Injecting route: $route');
