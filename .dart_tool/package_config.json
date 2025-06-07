@@ -104,10 +104,22 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "nested",
+      "rootUri": "file:///Users/vinicius/.pub-cache/hosted/pub.dev/nested-1.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
+    },
+    {
       "name": "path",
       "rootUri": "file:///Users/vinicius/.pub-cache/hosted/pub.dev/path-1.9.1",
       "packageUri": "lib/",
       "languageVersion": "3.4"
+    },
+    {
+      "name": "provider",
+      "rootUri": "file:///Users/vinicius/.pub-cache/hosted/pub.dev/provider-6.1.5",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
     },
     {
       "name": "sky_engine",
@@ -170,7 +182,7 @@
       "languageVersion": "3.5"
     }
   ],
-  "generated": "2025-06-01T19:51:47.841470Z",
+  "generated": "2025-06-07T01:29:09.256264Z",
   "generator": "pub",
   "generatorVersion": "3.7.2",
   "flutterRoot": "file:///Users/vinicius/flutter",

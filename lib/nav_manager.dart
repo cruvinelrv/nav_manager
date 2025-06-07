@@ -11,3 +11,4 @@ export 'src/dependency_injection/nav_dependency_injector.dart';
 export 'src/dependency_injection/nav_dependency_injector_impl.dart';
 export 'src/dependency_injection/dependency_injector_factory.dart';
 export 'src/dependency_injection/dependency_scope_enum.dart';
+export 'src/services/nav_manager_service.dart';

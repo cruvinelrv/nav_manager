@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:nav_manager/example/lib/app/config/application_config.dart';
-import 'package:nav_manager/example/lib/app/config/routes/auth_routes.dart';
-import 'package:nav_manager/example/lib/app/domains/domain_screen.dart';
+import 'package:nav_manager/example/lib/app_widget.dart';
 
 void main() {
-  final navManagerConfig = ApplicationConfig.configureApp();
+  // 1. Configura o injector usando o método estático
+  final injector = ApplicationConfig.configureApp();
+  // 2. Constrói o widget raiz, passando o injector
 
-  runApp(DomainScreen(
-    title: '',
-    domain: AuthRoutes.domain,
-    icon: Icons.home,
-    color: Colors.purple,
-  ));
+  // 3. Executa o aplicativo
+  runApp(AppWidget(injector: injector));
 }

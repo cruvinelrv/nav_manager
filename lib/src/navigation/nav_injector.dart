@@ -1,20 +1,24 @@
-import 'package:flutter/material.dart';
+// lib/nav_injector.dart
+
+import 'package:flutter/material.dart'; // Para debugPrint
+import 'dart:core'; // Para Type
 
 class NavInjector {
+  // Rotas continuam usando String como chave (nome da rota)
   final Map<String, Widget Function()> _routes = {};
 
-  // NOVOS: Gestão de dependências
-  final Map<String, dynamic Function()> _services = {};
-  final Map<String, dynamic> _singletonInstances = {};
+  // ✅ MUDANÇA: Gestão de dependências agora usa Type como chave
+  final Map<Type, dynamic Function()> _serviceFactories = {}; // Fábricas para criar serviços
+  final Map<Type, dynamic> _singletonInstances = {}; // Instâncias de singletons já criadas
 
-  // NOVOS: Gestão por domínios
+  // Gestão por domínios (continua usando String)
   final Map<String, String> _routeDomains = {}; // rota -> domínio
   final Map<String, List<String>> _domainRoutes = {}; // domínio -> [rotas]
 
-  // NOVOS: Gestão de módulos
+  // Gestão de módulos (continua usando String)
   final Map<String, ModuleInfo> _registeredModules = {};
 
-  // ========== MÉTODOS EXISTENTES ==========
+  // ========== MÉTODOS EXISTENTES (Sem alteração para rotas) ==========
 
   void registerRoute(String path, Widget Function() builder) {
     debugPrint('📝 Registering route in NavInjector: $path');
@@ -44,16 +48,17 @@ class NavInjector {
     debugPrint('');
   }
 
-  // ========== MÉTODOS NECESSÁRIOS PARA O VALIDATOR ==========
+  // ========== MÉTODOS NECESSÁRIOS PARA O VALIDATOR (Ajustados para serviços) ==========
 
   List<String> getRegisteredRoutes() {
     debugPrint('📋 Getting registered routes: ${_routes.keys.toList()}');
     return _routes.keys.toList();
   }
 
+  // ✅ MUDANÇA: Conta as fábricas de serviço registradas por Type
   int getDependencyCount() {
-    debugPrint('📊 Getting dependency count: ${_services.length}');
-    return _services.length;
+    debugPrint('📊 Getting dependency count: ${_serviceFactories.length}');
+    return _serviceFactories.length;
   }
 
   int getRouteCount() {
@@ -61,50 +66,80 @@ class NavInjector {
     return _routes.length;
   }
 
-  // ========== NOVOS MÉTODOS PARA DOMÍNIOS ==========
+  // ========== NOVOS MÉTODOS PARA DOMÍNIOS (Sem alteração) ==========
 
-  // --- Gestão de Dependências ---
+  // --- Gestão de Dependências (MODIFICADA) ---
 
-  void registerService<T>(String key, T Function() factory) {
-    debugPrint('🔧 Registering service in NavInjector: $key');
-    _services[key] = factory;
+  /// Registra uma fábrica para criar uma instância de serviço do tipo T.
+  /// ✅ Usa Type como chave.
+  void registerService<T>(T Function() factory) {
+    final key = T; // O tipo T é a chave
+    if (_serviceFactories.containsKey(key)) {
+      debugPrint('⚠️ Service factory already registered for type $T. Overwriting.');
+    }
+    _serviceFactories[key] = factory;
+    // Remova a instância singleton cacheada se houver, para garantir que a nova fábrica seja usada
+    _singletonInstances.remove(key);
+    debugPrint('🔧 Registered service factory for type: $key');
   }
 
-  T getService<T>(String key) {
+  /// Resolve e retorna uma instância do serviço registrado para o tipo [T].
+  /// ✅ Não espera parâmetro String key. Usa o tipo T para buscar.
+  T getService<T>() {
+    final key = T; // O tipo T é a chave para buscar
+
+    // 1. Verifica se já existe uma instância singleton cacheada
     if (_singletonInstances.containsKey(key)) {
       debugPrint('✅ Service found (cached): $key');
       return _singletonInstances[key] as T;
     }
 
-    if (_services.containsKey(key)) {
-      debugPrint('✅ Service found (creating instance): $key');
-      final instance = _services[key]!() as T;
+    // 2. Verifica se existe uma fábrica registrada para este tipo
+    if (_serviceFactories.containsKey(key)) {
+      debugPrint('✅ Service factory found (creating instance): $key');
+      final factory = _serviceFactories[key]!;
+      // Chama a fábrica para criar a instância
+      final instance = factory() as T; // A fábrica não recebe parâmetros aqui
+
+      // Cacheia a instância como singleton
       _singletonInstances[key] = instance;
+      debugPrint('✅ Created and cached instance for type: $key');
+
       return instance;
     }
 
-    debugPrint('❌ Service not found: $key');
-    throw Exception('Service not found: $key');
+    // 3. Serviço não encontrado
+    debugPrint('❌ Service factory not found for type: $key');
+    throw Exception('Service factory not found for type $T');
   }
 
-  bool hasService(String key) {
-    final exists = _services.containsKey(key);
-    debugPrint('🔍 Checking service "$key": ${exists ? "exists" : "not found"}');
+  /// Verifica se um serviço do tipo T está registrado.
+  /// ✅ Usa Type como chave.
+  bool hasService<T>() {
+    final key = T;
+    final exists = _serviceFactories.containsKey(key);
+    debugPrint('🔍 Checking service factory for type "$key": ${exists ? "exists" : "not found"}');
     return exists;
   }
 
-  void removeService(String key) {
-    _services.remove(key);
+  /// Remove a fábrica e a instância singleton de um serviço do tipo T.
+  /// ✅ Usa Type como chave.
+  void removeService<T>() {
+    final key = T;
+    _serviceFactories.remove(key);
     _singletonInstances.remove(key);
-    debugPrint('🗑️ Removed service: $key');
+    debugPrint('🗑️ Removed service factory and instance for type: $key');
   }
 
+  /// Retorna uma lista das representações em String dos tipos de serviços registrados.
+  /// ✅ Retorna String, mas representa os Types.
   List<String> getRegisteredServices() {
-    debugPrint('📋 Getting registered services: ${_services.keys.toList()}');
-    return _services.keys.toList();
+    final types = _serviceFactories.keys.map((type) => type.toString()).toList();
+    debugPrint('📋 Getting registered service types: $types');
+    return types;
   }
 
-  // --- Gestão por Domínios ---
+  // --- Gestão por Domínios (Sem alteração) ---
 
   void registerRouteWithDomain(String domain, String path, Widget Function() builder) {
     debugPrint('📝 Registering route $path for domain $domain');
@@ -142,7 +177,7 @@ class NavInjector {
     return domain;
   }
 
-  // --- Gestão de Módulos ---
+  // --- Gestão de Módulos (Sem alteração) ---
 
   void registerModule(
     String moduleName,
@@ -176,7 +211,7 @@ class NavInjector {
     return info;
   }
 
-  // --- Validações e Debug ---
+  // --- Validações e Debug (Sem alteração, exceto onde chamam métodos de serviço) ---
 
   List<String> getConflictingRoutes() {
     final conflicts = <String>[];
@@ -228,7 +263,7 @@ class NavInjector {
 
       debugPrint(' 📁 $domain (${routes.length} routes):');
       for (var route in routes) {
-        debugPrint('   🛣️  $route');
+        debugPrint(' 🛣️ $route');
       }
     }
 
@@ -237,19 +272,19 @@ class NavInjector {
       for (var module in _registeredModules.values) {
         debugPrint(' 📦 ${module.name} (${module.domain})');
         if (module.teamOwner != null) {
-          debugPrint('   👥 ${module.teamOwner}');
+          debugPrint(' 👥 ${module.teamOwner}');
         }
         if (module.version != null) {
-          debugPrint('   🏷️  v${module.version}');
+          debugPrint(' 🏷️ v${module.version}');
         }
-        debugPrint('   📊 ${module.routes.length} routes');
+        debugPrint(' 📊 ${module.routes.length} routes');
       }
     }
 
     debugPrint('');
   }
 
-  // --- Métodos de Limpeza ---
+  // --- Métodos de Limpeza (Ajustados para serviços) ---
 
   void removeRoute(String path) {
     _routes.remove(path);
@@ -266,31 +301,33 @@ class NavInjector {
     debugPrint('🗑️ Removed route: $path');
   }
 
+  // ✅ MUDANÇA: Limpa também os mapas de serviço baseados em Type
   void clearAll() {
     _routes.clear();
-    _services.clear();
-    _singletonInstances.clear();
+    _serviceFactories.clear(); // ✅ Limpa fábricas (Map<Type, ...>)
+    _singletonInstances.clear(); // ✅ Limpa singletons (Map<Type, ...>)
     _routeDomains.clear();
     _domainRoutes.clear();
     _registeredModules.clear();
     debugPrint('🧹 Cleared all NavInjector data');
   }
 
-  // --- Método de Debug Expandido ---
+  // --- Método de Debug Expandido (Ajustado para serviços) ---
 
   void printFullStatus() {
     debugPrint('\n📊 NavInjector Full Status:');
     debugPrint('Routes: ${_routes.length}');
-    debugPrint('Services: ${_services.length}');
+    debugPrint('Services: ${_serviceFactories.length}'); // ✅ Conta fábricas por Type
     debugPrint('Domains: ${_domainRoutes.length}');
     debugPrint('Modules: ${_registeredModules.length}');
 
     printRegisteredRoutes();
     printDomainInfo();
+    // Opcional: Adicionar printRegisteredServices() aqui
   }
 }
 
-// ========== CLASSE ModuleInfo ==========
+// ========== CLASSE ModuleInfo (Sem alteração) ==========
 
 class ModuleInfo {
   final String name;

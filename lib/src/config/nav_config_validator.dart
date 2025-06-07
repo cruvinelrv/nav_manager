@@ -1,6 +1,7 @@
 import 'package:nav_manager/nav_manager.dart';
 import 'package:nav_manager/src/config/nav_logger.dart';
 import 'package:nav_manager/src/config/nav_manager_exception.dart';
+import 'package:nav_manager/src/module/nav_module.dart';
 
 class NavConfigValidator {
   final NavLogger logger;
