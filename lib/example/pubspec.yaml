@@ -9,7 +9,7 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.2
   nav_manager:
-    path: ../nav_manager # O caminho relativo para a raiz do seu package
+    path: ../..
 dev_dependencies:
   flutter_test:
     sdk: flutter
