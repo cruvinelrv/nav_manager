@@ -7,10 +7,11 @@ import 'package:provider/provider.dart'; // Importe o package provider
 /// Esta classe é fornecida via Provider e acessada através de BuildContext.
 class NavManagerService {
   final NavRouter _router;
-  final NavInjector _injector;
 
   /// Construtor que recebe as instâncias de NavRouter e NavInjector.
-  NavManagerService(this._router, this._injector);
+  NavManagerService(this._router) {
+    // Registra o NavInjector no NavRouter
+  }
 
   /// Navega para uma rota nomeada, adicionando-a à pilha.
   Future<void> pushNamed(String routeName) async {

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nav_manager/src/dependency_injection/dependency_scope_enum.dart';
 import 'package:nav_manager/src/module/nav_module.dart';
 import 'package:nav_manager/src/navigation/nav_injector.dart';
+import 'package:nav_manager/src/nova/nav_dependency_injector.dart';
 
 class NavManagerConfig {
   final bool isMultRepo;
@@ -9,7 +10,7 @@ class NavManagerConfig {
   final Map<String, NavModule> remoteModules;
   final Map<String, Widget Function()> routes;
   final DependencyScopeEnum dependencyScope;
-  final NavInjector navInjector;
+  final NavDependencyInjector navInjector;
 
   NavManagerConfig({
     this.isMultRepo = false,

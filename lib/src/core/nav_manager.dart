@@ -1,155 +1,88 @@
-// lib/nav_manager.dart (Dentro do seu package nav_manager)
+// lib/src/nav_manager_core.dart
+import 'package:flutter/material.dart'; // Importa Material para GlobalKey
+import 'package:nav_manager/src/config/nav_manager_config.dart';
+import 'package:nav_manager/src/nova/nav_dependency_injector.dart';
+import 'package:nav_manager/src/nova/nav_routes_injector.dart';
 
-import 'package:flutter/material.dart';
-import 'package:nav_manager/nav_manager.dart';
-// Importe os componentes específicos do seu package
-// Ajuste os caminhos de importação conforme a estrutura real do seu package
-import 'package:provider/provider.dart'; // Importe o package provider
+class NavManager {
+  static NavManager? _instance;
 
-/// Widget raiz que configura o sistema de navegação (Router API)
-/// e disponibiliza o NavInjector e o NavManagerService via Provider.
-class NavManager extends StatefulWidget {
-  /// O widget filho que representa o restante da árvore de widgets do aplicativo.
-  /// As rotas iniciais e serviços para este child serão configurados aqui.
-  /// Note: Ao usar MaterialApp.router, este child não se torna a 'home',
-  /// mas define o escopo onde os Providers e outros widgets globais (como Overlays)
-  /// podem ser aplicados acima do Navigator gerenciado pelo RouterDelegate.
-  final Widget child;
+  final NavManagerConfig config;
+  final NavDependencyInjector di;
+  final NavRoutesInjector navigator; // Agora mantém o NavRoutesInjector
 
-  /// A rota inicial que o Router deve tentar navegar ao iniciar.
-  /// Geralmente '/'.
-  final String initialRoute;
-
-  /// O NavInjector pré-configurado com as rotas e serviços do aplicativo.
-  final NavInjector injector;
-
-  /// O título do aplicativo. Passado para MaterialApp.router.
-  final String title;
-
-  /// O tema do aplicativo. Passado para MaterialApp.router.
-  final ThemeData theme;
-
-  const NavManager({
-    super.key,
-    required this.child,
-    required this.initialRoute,
-    required this.injector,
-    this.title = '', // Pode definir um default ou tornar obrigatório
-    required this.theme, // O tema geralmente é obrigatório
+  // Construtor privado
+  NavManager._({
+    required this.config,
+    required this.di,
+    required this.navigator, // Recebe o NavRoutesInjector
   });
 
-  @override
-  State<NavManager> createState() => _NavManagerState();
-}
+  // Método de inicialização assíncrona
+  static Future<void> initialize({
+    required String configPath, // Caminho para o arquivo de configuração
+    // O NavManager agora precisa da chave do Navigator do aplicativo consumidor
+    required GlobalKey<NavigatorState> navigatorKey,
+    // Rotas adicionais do app consumidor (usando sua nova assinatura de builder)
+    Map<String, RouteWidgetBuilder> additionalRoutes = const {},
+    // Função para configurar as dependências
+    required void Function(NavDependencyInjector injector) registerDependencies,
+  }) async {
+    if (_instance != null) {
+      // Já inicializado
+      return;
+    }
 
-class _NavManagerState extends State<NavManager> {
-  // ✅ Gerencia a GlobalKey para o Navigator.
-  // Criada no initState e persistente durante a vida do State.
-  late final GlobalKey<NavigatorState> _navigatorKey;
+    // 1. Carregar Configuração
+    final config = await NavManagerConfig.loadFromAssets(configPath);
 
-  // ✅ Gerencia a instância do NavRouter.
-  // Criada no initState e persistente durante a vida do State.
-  late final NavRouter _navRouter;
+    // 2. Inicializar Injetor de Dependência
+    final di = NavDependencyInjector();
+    di.registerSingletonInstance<NavManagerConfig>(config);
+    di.registerSingletonInstance<NavDependencyInjector>(di);
 
-  // ✅ Gerencia a instância do NavManagerService.
-  // Criada no initState e persistente durante a vida do State.
-  late final NavManagerService _navManagerService;
+    // Chamar a função fornecida pelo aplicativo consumidor para registrar suas dependências
+    registerDependencies(di);
 
-  // ✅ Gerencia a instância do NavRouteInformationParser.
-  // Criada no initState e persistente durante a vida do State.
-  late final NavRouteInformationParser _routeInformationParser;
+    // Opcional: Registrar dependências internas do package NavManager (se houver)
+    // di.register<SomeInternalService>(...);
 
-  @override
-  void initState() {
-    super.initState();
-    debugPrint('🛠️ NavManager: Initializing...');
+    // 3. Inicializar Injetor de Rotas (Seu customizado)
+    final navigatorInjector = NavRoutesInjector(navigatorKey, di);
 
-    // 1. Cria a GlobalKey para o Navigator. Criada apenas uma vez no initState.
-    _navigatorKey = GlobalKey<NavigatorState>();
+    // Registrar rotas internas do package NavManager (se houver)
+    // Exemplo:
+    // navigatorInjector.registerRoute(
+    //   name: '/package-feature',
+    //   builder: (context, di, args) => PackageFeatureScreen(
+    //     someDependency: di.get<SomePackageDependency>(),
+    //     arguments: args,
+    //   ),
+    // );
+    // navigatorInjector.registerRoutes({...}); // Registrar múltiplas rotas do package
 
-    // 2. O NavInjector é recebido no construtor do widget.
-    final navInjector = widget.injector;
+    // Registrar rotas adicionais do aplicativo consumidor
+    navigatorInjector.registerRoutes(additionalRoutes);
 
-    // 3. Cria a instância do NavRouter, passando o injector e a key.
-    // O NavRouter gerencia a pilha de navegação e usa a key para o Navigator interno.
-    _navRouter = NavRouter(navInjector, _navigatorKey);
-
-    // 4. Cria a instância do NavManagerService, passando o router e o injector.
-    // Este serviço usará o router (e sua key) para realizar as operações de navegação.
-    // Ele também pode usar o injector para acessar outros serviços.
-    _navManagerService = NavManagerService(_navRouter, navInjector);
-
-    // 5. Cria a instância do RouteInformationParser.
-    // Responsável por converter a URL em um estado de rota e vice-versa.
-    _routeInformationParser = NavRouteInformationParser();
-
-    // O Router API (via MaterialApp.router) cuidará de chamar setNewRoutePath
-    // com a rota inicial após a primeira construção.
-    // Não precisamos chamar _navRouter.setNewRoutePath(...) explicitamente aqui.
-  }
-
-  @override
-  void dispose() {
-    debugPrint('🗑️ NavManager: Disposing...');
-    // ✅ Descarta o NavRouter (que deve ser um ChangeNotifier).
-    _navRouter.dispose();
-    // Se o NavInjector precisar de dispose (por exemplo, se gerenciar streams/controladores),
-    // chame dispose nele aqui. Adicione um método dispose() ao NavInjector se necessário.
-    // Exemplo: if (widget.injector is Disposable) (widget.injector as Disposable).dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    debugPrint('🏗️ NavManager: Building...');
-    // ✅ Usa MultiProvider para fornecer o NavInjector e o NavManagerService
-    // ao contexto, tornando-os acessíveis para os widgets abaixo na árvore.
-    return MultiProvider(
-      providers: [
-        // Fornece a instância do NavInjector
-        Provider<NavInjector>.value(
-          value: widget.injector,
-        ),
-        // Fornece a instância do NavManagerService
-        Provider<NavManagerService>.value(
-          value: _navManagerService,
-        ),
-        // Opcional: Fornecer o NavRouter se você precisar acessá-lo diretamente
-        // Provider<NavRouter>.value(
-        // value: _navRouter,
-        // ),
-      ],
-      // ✅ Envolve o MaterialApp.router, que é o widget raiz que implementa
-      // a Router API e usa o routerDelegate e routeInformationParser.
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false, // Ou defina conforme sua necessidade
-        title: widget.title, // ✅ Use o título passado no construtor do NavManager
-        theme: widget.theme, // ✅ Use o tema passado no construtor do NavManager
-
-        // Configura o Router API com as instâncias criadas no initState
-        routerDelegate: _navRouter,
-        routeInformationParser: _routeInformationParser,
-
-        // O widget child original do NavManager (widget.child) não é colocado
-        // diretamente aqui como a 'home' ou um child do MaterialApp.router.
-        // A Router API gerencia a exibição das telas através do routerDelegate.
-        // O MultiProvider envolvendo o MaterialApp.router garante que
-        // os Providers estejam disponíveis para todas as telas gerenciadas
-        // pelo NavRouter. O 'widget.child' serve principalmente para o escopo
-        // dos Providers e para adicionar widgets que devem estar acima do Navigator
-        // (como overlays globais), embora Stack seja mais comum para isso dentro do builder.
-        // Se você tiver widgets que devem estar *acima* do Navigator (como um LoadingOverlay global),
-        // eles iriam no 'builder' do MaterialApp.router, envolvendo o 'navigator'.
-        // Exemplo:
-        // builder: (context, navigator) {
-        //   return Stack(
-        //     children: [
-        //       navigator!, // O Navigator construído pelo framework
-        //       // Seu widget global (ex: LoadingOverlay())
-        //     ],
-        //   );
-        // },
-      ),
+    // 4. Criar a instância do NavManager
+    _instance = NavManager._(
+      config: config,
+      di: di,
+      navigator: navigatorInjector, // Passa o NavRoutesInjector configurado
     );
   }
+
+  // Método para obter a instância (getter)
+  static NavManager get instance {
+    if (_instance == null) {
+      throw Exception("NavManager not initialized. Call NavManager.initialize() first.");
+    }
+    return _instance!;
+  }
+
+  // Métodos de conveniência para acessar os componentes
+  static NavManagerConfig get config => instance.config;
+  static NavDependencyInjector get di => instance.di;
+  // Expõe o seu NavRoutesInjector customizado
+  static NavRoutesInjector get navigator => instance.navigator;
 }

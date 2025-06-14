@@ -11,6 +11,9 @@ class NavManagerException implements Exception {
     if (originalError != null) {
       result += '\nCaused by: $originalError';
     }
+    if (stackTrace != null) {
+      result += '\nStackTrace: $stackTrace';
+    }
     return result;
   }
 }

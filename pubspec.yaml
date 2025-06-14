@@ -8,7 +8,7 @@ documentation: https://navmanager.inatos.com.br/docs
 license: GPL-3.0
 
 environment:
-  sdk: ^3.5.4
+  sdk: '>=2.17.0 <4.0.0'
   flutter: ">=1.17.0"
 
 dependencies:
