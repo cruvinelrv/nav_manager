@@ -1,9 +1,27 @@
+// lib/my_app.dart
+
 import 'package:flutter/material.dart';
 import '../../nav_manager.dart';
+// Não precisamos importar o injetor aqui, pois ele é acessado estaticamente via ApplicationConfig
+
+// Remova completamente a classe DependencyInjectorProvider InheritedWidget se ela estiver aqui
 
 class MyApp extends StatelessWidget {
   final NavManagerConfig config;
   const MyApp({super.key, required this.config});
+
+  // REMOVA ESTE GETTER _injector que tenta ler de config.dependencies
+  /*
+  NavDependencyInjectorImpl get _injector {
+     final injector = config.dependencies['injector'];
+     if (injector is! NavDependencyInjectorImpl) {
+        throw StateError('NavDependencyInjectorImpl not found in config.dependencies with key "injector". '
+                         'Ensure ApplicationConfig.configure() registers it.');
+     }
+     return injector;
+  }
+  */
+
   @override
   Widget build(BuildContext context) {
     Map<String, WidgetBuilder> appRoutes = {};
@@ -14,13 +32,15 @@ class MyApp extends StatelessWidget {
         }
       });
     });
+
+    // Não envolvemos mais com DependencyInjectorProvider
     return MaterialApp(
       title: 'Nav Manager Example',
       theme: ThemeData(
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      initialRoute: '/products',
+      initialRoute: '/',
       routes: appRoutes,
       onGenerateRoute: (settings) {
         for (var injector in config.routes.values) {
@@ -32,16 +52,17 @@ class MyApp extends StatelessWidget {
               final pathSegmentsActual = Uri.parse(settings.name ?? '').pathSegments;
               if (pathSegmentsConfig.length == pathSegmentsActual.length) {
                 bool matches = true;
-                Map<String, String> parameters = {};
                 for (int i = 0; i < pathSegmentsConfig.length; i++) {
                   if (pathSegmentsConfig[i].startsWith(':')) {
-                    parameters[pathSegmentsConfig[i].substring(1)] = pathSegmentsActual[i];
+                    // Parâmetros
                   } else if (pathSegmentsConfig[i] != pathSegmentsActual[i]) {
                     matches = false;
                     break;
                   }
                 }
                 if (matches) {
+                  // O builder (HomePage, DetailPage, SettingsPage)
+                  // receberá o BuildContext, mas não precisa dele para o injetor
                   return MaterialPageRoute(builder: navRoute.builder, settings: settings);
                 }
               }
@@ -49,6 +70,7 @@ class MyApp extends StatelessWidget {
           }
         }
         if (appRoutes.containsKey(settings.name)) {
+          // O builder também recebe o BuildContext
           return MaterialPageRoute(builder: appRoutes[settings.name]!, settings: settings);
         }
         return MaterialPageRoute(
