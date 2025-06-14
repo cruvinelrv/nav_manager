@@ -1,0 +1,4 @@
+enum RepoTypeEnum {
+  monoRepo,
+  multiRepo,
+}
