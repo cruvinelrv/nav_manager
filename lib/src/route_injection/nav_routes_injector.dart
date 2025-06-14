@@ -1,5 +1,12 @@
-class NavRoutesInjector {
-  final Map<String, NavRoutesInjector> routes;
+import 'package:nav_manager/src/route_injection/nav_route.dart';
 
-  const NavRoutesInjector({this.routes = const {}});
+class NavRoutesInjector {
+  final Map<String, NavRoute> routes;
+  const NavRoutesInjector({
+    this.routes = const {},
+  });
+  @override
+  String toString() {
+    return 'NavRoutesInjector(routes: $routes)';
+  }
 }
